@@ -131,13 +131,34 @@ cases_age_sex_wide |>
     text = "Total Cases by Age Group and Sex (2020-2021)",
     left = "center"
   ) |>
-  e_tooltip(trigger = "axis") |>
+e_tooltip(
+  trigger = "axis",
+  formatter = tooltip_sex_age
+) |> 
   e_legend(top = 25) |> 
   e_color(flatly_pie)
 ```
 
 ### Column
+#### Row
+```{r hosp-numbers-total}
+#| content: valuebox
+#| title: "Total Hospitalized"
+list(
+  icon = "hospital",
+  value = format(sum(weekly_overview$`Number Hospitalized`), big.mark=",")
+) 
+```
 
+```{r hosp-numbers-new}
+#| content: valuebox
+#| title: "New Admissions"
+list(
+  icon = "heart-pulse",
+  value = tail(weekly_overview$`Number Hospitalized`, n=1)
+) 
+```
+#### Row
 ```{r hospitalizations rate}
 weekly_overview |>
   mutate(hosp_rate_pct = hosp_rate * 100) |>

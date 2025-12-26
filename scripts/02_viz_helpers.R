@@ -45,6 +45,28 @@ tooltip_hospitalizations <- htmlwidgets::JS("
   }
 ")
 
+tooltip_sex_age <- htmlwidgets::JS("
+    function(params){
+      var header = '<strong>' + params[0].axisValue + '</strong><br/>';
+      var body = '';
+      var total = 0;
+
+      params.forEach(function(p){
+        var raw = Array.isArray(p.value) ? p.value[1] : p.value;
+        var val = Number(raw) || 0;      // <- force numeric
+        total += val;
+
+        body += p.marker + ' ' + p.seriesName + ': ' +
+                val.toLocaleString() + '<br/>';
+      });
+
+      body += '<hr style=\"margin:4px 0;\">' +
+              '<strong>Total: ' + total.toLocaleString() + '</strong>';
+
+      return header + body;
+    }
+  ")
+
 tooltip_deaths <- htmlwidgets::JS("
     function(params){
 
