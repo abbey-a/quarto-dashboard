@@ -8,6 +8,7 @@ embed-resources: true
 editor: source
 engine: knitr
 ---
+<!-- Data preparation and helper functions are modularized in `scripts/` for readability and reuse; key analytical and visualization steps are shown inline. -->
 
 ```{r setup}
 #| echo: false
@@ -41,7 +42,7 @@ To enter **full screen** with any graph, click the expand icon on the bottom rig
 ### Column
 
 #### Row
-
+<!-- Make 3 value boxes for quick situational awareness -->
 ```{r new_cases}
 #| content: valuebox
 #| title: "New Cases (Latest Week)"
@@ -113,27 +114,23 @@ cases_demo |>
 
 #### Row {height="60%"}
 
-```{r admissions}
-# most zip codes ARE in Fulton County
-# Fulton County population 1,075,000 (2022)
-admissions <- covid_clean |> 
-  filter(hospitalized=="Yes") |> 
-  mutate(county_pop = 1075000) |> 
-  mutate(week_start = lubridate::floor_date(pos_sampledt, "weeks", week_start = 1)) |> 
-  group_by(week_start) |> 
-  filter(!is.na(week_start)) |> 
-  summarize(Admissions = n()) |> 
-  mutate(population = 1075000) |> 
-  mutate(admit_rate = (Admissions/population)*100000)
+```{r hospitalizations rate}
+weekly_overview |>
+  mutate(hosp_rate_pct = hosp_rate * 100) |>
+  e_charts(week_start) |>
+  e_line(hosp_rate_pct, name = "Hospitalization Rate (%)") |>
+  e_title(
+    text = "Weekly Hospitalization Rate Among Reported Cases",
+    subtext = "By specimen collection week (2020–2021)",
+    left = "center"
+  ) |>
+  e_legend(show = FALSE) |>
+  e_datazoom(type = "slider") |>
+  e_tooltip(
+    trigger = "axis",
+    formatter = tooltip_hospitalizations
+  )
 
-admissions |> 
-  mutate(admit_rate = format(round(admit_rate, 2), nsmall=2)) |> 
-  e_charts(week_start) |> 
-  e_line(admit_rate, name = "Admission Rate per 100K Residents") |> 
-  e_title(text = "COVID-19 Hospitalization Rate by Specimen Collection Week (2020-2021)", subtext = "Per 100K Fulton County Residents (2022 Census)", left="center") |> 
-  e_legend(show=FALSE) |> 
-  e_datazoom(type="slider") |> 
-  e_tooltip()
 
 ```
 

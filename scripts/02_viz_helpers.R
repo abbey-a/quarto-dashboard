@@ -16,6 +16,23 @@ tooltip_race_pie <- htmlwidgets::JS("
       }
     ")
 
+tooltip_hospitalizations <- htmlwidgets::JS("
+      function(params){
+        var p = params[0];
+
+        // Format the x value (timestamp -> readable date)
+        var d = new Date(p.axisValue);
+        var dateLabel = d.toISOString().slice(0,10); // YYYY-MM-DD
+
+        // Extract y value safely (sometimes p.value is [x,y], sometimes number)
+        var y = (Array.isArray(p.value)) ? p.value[1] : p.value;
+        y = Number(y);
+
+        return '<strong>' + dateLabel + '</strong><br/>' +
+               'Hospitalization Rate: ' + y.toFixed(1) + '%';
+      }
+    ")
+
 tooltip_deaths <- htmlwidgets::JS("
     function(params){
 

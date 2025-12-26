@@ -1,20 +1,34 @@
 # Foundational Wrangling for Visuals
 
 # 1. Epi Curve Overview
-# weekly cases
+# weekly cases (and hospitalizations variable for later)
 weekly_overview <- covid_clean |>
   filter(!is.na(pos_sampledt)) |> # n=122 missing positive sample dates
   mutate(week_start = lubridate::floor_date(pos_sampledt, "weeks", week_start = 1)) |>
-  count(week_start, name = "Number of Cases") |> 
-  mutate(cdc_week = epiweek(week_start)) |> 
-  mutate(label = paste0("CDC Week ", cdc_week))
+  group_by(week_start) |>
+  summarize(
+    `Number of Cases` = dplyr::n(),
+    `Number Hospitalized` = sum(hospitalized == "Yes", na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    hosp_rate = `Number Hospitalized` / `Number of Cases`,
+    cdc_week  = epiweek(week_start),
+    label     = paste0("CDC Week ", cdc_week)
+  )
 
-# 2. Race/Demographics
+
+# 2. Cases 
+# Race/Demographics
 cases_demo <- covid_clean |> 
   group_by(case_race) |> 
   summarize(Count=n()) |> 
   mutate(case_race = str_to_title(ifelse(is.na(case_race), "MISSING", case_race))) |> 
   arrange(Count) 
+
+# Weekly Hospitalization Rate Among Reported Cases
+
+
 
 # 3. Deaths
 covid_deaths <- covid_clean |> 
