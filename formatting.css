@@ -1,5 +1,4 @@
-/* --- Callout header: icon + title on one line (left aligned) --- */
-
+/* Callout header: get icon and title on one line (left aligned)*/
 .callout .callout-header {
   display: flex;
   flex-direction: row;
@@ -28,7 +27,7 @@
 }
 
 
-/* Sidebar content only */
+/* Enlarge font: Sidebar content only */
 aside .html-fill-container {
   font-size: 0.9rem;
 }

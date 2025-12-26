@@ -70,7 +70,7 @@ This project originated from a coding assessment request to analyze an outbreak 
 
 The underlying data is a synthetic COVID-19 [dataset](https://github.com/appliedepi/epiRhandbook_eng/tree/master/data/covid_example_data) provided by the global non-profit organization Applied Epi.
 
-All graphs were created using the R package `echarts4r`
+All graphs were created using the R package `echarts4r`.
 
 ::: {.callout-tip title="Usage Tips"}
 
