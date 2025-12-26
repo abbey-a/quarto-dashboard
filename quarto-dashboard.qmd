@@ -1,0 +1,300 @@
+---
+title: "Sample Dashboard"
+author: "Abigail Allison"
+format: dashboard
+css: formatting.css
+theme: flatly
+embed-resources: true
+editor: source
+engine: knitr
+---
+
+```{r setup}
+#| echo: false
+pacman::p_load(tidyverse, readxl, janitor, here, echarts4r, stringr, dt)
+
+# made project for this
+covid_raw <- read_excel("data/covid_example_data.xlsx")
+
+# tidy column names with janitor
+covid_clean <- clean_names(covid_raw)
+
+# deduplicate any identical rows
+covid_clean <- covid_clean[!duplicated(covid_clean),] # same # rows, no duplicates
+
+# drop "_false" endings from column names
+colnames_clean <- gsub("_false", "", colnames(covid_clean))
+colnames(covid_clean) <- colnames_clean
+```
+
+```{r visuals}
+# 1. Epi Curve Overview
+# n=122 missing positive sample dates
+pos_sampledt_no_na <- covid_clean |> 
+  select(pos_sampledt, case_gender) |> 
+  filter(!is.na(pos_sampledt))
+
+# grab first day of week from pos_sampledt
+pos_sampledt_no_na$week_start <- lubridate::floor_date(pos_sampledt_no_na$pos_sampledt, "weeks", week_start = 1)
+
+grouped_overview <- pos_sampledt_no_na |> 
+  group_by(week_start) |> 
+  summarize(`Number of Cases` = n())
+
+grouped_overview$cdc_week <- epiweek(grouped_overview$week_start)
+grouped_overview$label = paste0("CDC Week ", grouped_overview$cdc_week)
+
+# 2. Cases
+cases_demo <- covid_clean |> 
+  group_by(case_race) |> 
+  summarize(Count=n()) |> 
+  mutate(proportion = (Count/sum(Count)*100)) |> 
+  mutate(case_race = str_to_title(ifelse(is.na(case_race), "MISSING", case_race))) |> 
+  arrange(proportion) 
+
+# 3. Deaths
+covid_deaths <- covid_clean %>% 
+  select(died_covid, died_dt, starts_with("case_")) %>% 
+  filter(died_covid == "Yes")
+
+```
+
+# Overview
+
+## Row
+
+#### {.sidebar}
+
+This project originated from a coding assessment request to analyze an outbreak line list and deliver a situational report for epidemiologists.
+
+The underlying data is a synthetic COVID-19 dataset provided by the global non-profit organization [Applied Epi](https://www.appliedepi.org).
+
+All graphs were created using the R package `echarts4r`, which is user friendly for basics but requires JavaScript for customization.
+
+Throughout this dashboard, "CDC Week" is used to refer to MMWR week.
+
+
+::: {.callout-tip title="Usage Tips"}
+
+Hover your cursor over graph contents to see a **tooltip** for additional information. 
+
+Use the interactive **zoom slider** under the x-axis to select a specific date range.
+
+To enter **full screen** with any graph, click the expand icon on the bottom right.
+:::
+
+### Column
+
+#### Row
+
+```{r new_cases}
+#| content: valuebox
+#| title: "New Cases (Latest Week)"
+list(
+  icon = "virus",
+  #color = "info",
+  value = tail(grouped_overview$`Number of Cases`, n=1)
+) 
+```
+
+```{r total_cases}
+#| content: valuebox
+#| title: "Total Cases"
+list(
+  icon = "lungs",
+  #color = "danger",
+  value = format(nrow(covid_clean), big.mark=",")
+) # add new cases, deaths, R0?
+```
+
+```{r total_deaths}
+#| content: valuebox
+#| title: "Total Deaths"
+list(
+  icon = "people",
+  #color = "danger",
+  value = format(nrow(covid_deaths), big.mark=",")
+) 
+```
+
+#### Row
+```{r epi_curve_overview}
+grouped_overview |> 
+  e_charts(week_start) |> 
+  e_bar(`Number of Cases`, bind = label) |> 
+  e_tooltip(
+    formatter = htmlwidgets::JS("
+      function(params){
+        return('<strong>' + params.name + 
+                '</strong><br />Week Starting: ' + params.value[0] + 
+                '<br />Number of Cases: ' + params.value[1]) 
+                }
+    ")
+  ) |> 
+  e_axis_labels(y = "Cases (N)") |> 
+  e_legend(show = FALSE) |> 
+  e_title(text = "COVID-19 Cases by CDC Week", left = "center", subtext = "2020-2021") |> 
+  e_datazoom(x_index = 0, type = "slider") 
+
+```
+
+# Cases
+
+## Row
+
+### Column
+
+```{r case_demo}
+# load package for color palettes
+# library(RColorBrewer)
+# set vector to # of races present in data (n=8)
+# my_colors <- rev(brewer.pal(n = 8, name = "Set1"))
+# Added 'rev' to reverse color vector for Set1, otherwise not aesethetic on plot
+flatly_pie <- c(
+  "#4E79A7",  # muted blue (anchor)
+  "#76B7B2",  # teal
+  "#59A14F",  # green
+  "#EDC948",  # soft gold (NOT bright yellow)
+  "#AF7AA1",  # muted purple
+  "#F28E2B",  # softened orange
+  "#9C755F",  # warm gray-brown
+  "#BAB0AC"   # neutral gray
+)
+
+
+# demographics
+cases_demo |> 
+  mutate(proportion = format(round(proportion, 2), nsmall=2)) |> 
+  #arrange(desc(proportion)) |>
+  e_charts(case_race) |> 
+  e_pie(proportion, radius = c("50%", "70%"), name= "Percentage(%)") |>
+  e_title(text = "COVID-19 Cases by Race", left="center", subtext = "2020-2021") |> 
+  e_legend(show=FALSE) |> 
+  e_tooltip() |> 
+  e_color(rev(flatly_pie))
+```
+
+### Column
+
+#### Row {height="60%"}
+
+```{r admissions}
+# most zip codes ARE in Fulton County
+# Fulton County population 1,075,000 (2022)
+admissions <- covid_clean |> 
+  filter(hospitalized=="Yes") |> 
+  mutate(county_pop = 1075000) |> 
+  mutate(week_start = lubridate::floor_date(pos_sampledt, "weeks", week_start = 1)) |> 
+  group_by(week_start) |> 
+  filter(!is.na(week_start)) |> 
+  summarize(Admissions = n()) |> 
+  mutate(population = 1075000) |> 
+  mutate(admit_rate = (Admissions/population)*100000)
+
+admissions |> 
+  mutate(admit_rate = format(round(admit_rate, 2), nsmall=2)) |> 
+  e_charts(week_start) |> 
+  e_line(admit_rate, name = "Admission Rate") |> 
+  e_title(text = "COVID-19 Hospitalizations by Specimen Collection Week (2020-2021)", subtext = "Per 100K Fulton County Residents (2022 Census)", left="center") |> 
+  e_legend(show=FALSE) |> 
+  e_datazoom(type="slider") |> 
+  e_tooltip()
+```
+
+#### Row {height="40%"}
+
+```{r table}
+# table: top 10 postal codes
+fulton_postal_codes <- c(30004,30005,30009,30022,30023,30075,30076,30077,30097,30213,30268,30272,30291,30301,30302,30303,30304,30305,30306,30307,30308,30309,30310,30311,30312,30313,30314,30315,30316,30318,30320,30321,30324,30325,30326,30327,30328,30328,30330,30330,30331,30334,30336,30337,30337,30339,30342,30343,30344,30344,30347,30348,30349,30349,30353,30354,30354,30355,30357,30358,30358,30361,30364,30364,30369,30370,30371,30374,30376,30377,30378,30379,30392,30394,31106,31107,31126,31131,31139,31150,31156)
+
+covid_clean |> 
+  filter(case_zip %in% fulton_postal_codes) |> # would normally geocode
+  group_by(case_zip) |> 
+  summarize(Cases = n()) |> 
+  arrange(desc(Cases)) |> 
+  head(n=10) |> 
+  DT::datatable(rownames = FALSE, colnames=c("Postal Code", "Cases(N)"), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: center; color:black; font-size:115%', 'Postal Codes with Most Cases (2020-2021)'
+  ))
+  #cols_label(case_zip = "Postal Code", Cases = "Total (N)") |> 
+  #tab_header(title = "Postal Codes with Most Cases (2020-2021)") |> 
+  #cols_align(align = "center")
+```
+
+# Deaths
+
+```{r deaths_by_week}
+
+# add line for deaths
+deaths <- covid_clean |> 
+  filter(!is.na(pos_sampledt)) |> 
+  filter(died == "Yes") |> 
+  select(pos_sampledt)
+  
+deaths$week_start = lubridate::floor_date(deaths$pos_sampledt, "weeks", week_start = 1)
+  
+deaths <- deaths |> 
+  group_by(week_start) |> 
+  summarize(`Number of Deaths` = n()) 
+
+deaths$cdc_week = epiweek(deaths$week_start)
+deaths$label = paste0("CDC Week ", deaths$cdc_week)
+
+# join deaths and grouped_overview
+grouped_overview <- left_join(grouped_overview, deaths) # will join by week_start, common variable
+# change NAs in number of deaths column to 0
+grouped_overview[is.na(grouped_overview$`Number of Deaths`),5] <- 0
+grouped_overview$death_rate = (grouped_overview$`Number of Deaths`/grouped_overview$`Number of Cases`)
+
+deaths <- left_join(deaths, grouped_overview)
+
+deaths |>
+  e_charts(week_start) |>
+  e_bar(`Number of Deaths`, bind = label) |>
+  e_line(death_rate, y_index = 1, bind = label, name = "Case Fatality Rate") |>
+e_tooltip(
+  trigger = "axis",
+  formatter = htmlwidgets::JS("
+    function(params){
+
+      function getY(p){
+        var v = p.value;
+        if (Array.isArray(v)) return v[v.length - 1]; // y
+        return v;
+      }
+
+      var bar  = params.find(p => p.seriesType === 'bar');
+      var line = params.find(p => p.seriesType === 'line');
+
+      // CDC Week label comes from bind -> params[i].name
+      var cdcWeekLabel = params[0].name; // e.g., 'CDC Week 31'
+
+      // Week start date from axis value or from value[0]
+      var weekStart =
+        (params[0].axisValueLabel || params[0].axisValue) ||
+        (Array.isArray(params[0].value) ? params[0].value[0] : params[0].name);
+
+      var deaths = bar  ? getY(bar)  : null;
+      var cfr    = line ? getY(line) : null;
+
+      var deathsTxt = (deaths === null || deaths === undefined) ? 'NA' : deaths;
+
+      var cfrTxt = (cfr === null || cfr === undefined || isNaN(cfr))
+        ? 'NA'
+        : (Number(cfr) * 100).toFixed(2) + '%';
+
+      return '<strong>' + cdcWeekLabel + '</strong>'
+        + '<br/>Week Starting: ' + weekStart
+        + '<br/>Number of Deaths: ' + deathsTxt
+        + '<br/>Case Fatality Rate: ' + cfrTxt;
+    }
+  ")
+) |>
+  e_y_axis(index = 1, name = "Case Fatality Rate") |>
+  e_y_axis(name = "Deaths (N)") |>
+  e_legend(show = TRUE, top = "8%") |>
+  e_title(text = "COVID-19 Deaths and Case Fatality Rate by CDC Week", left = "center", subtext = "2020-2021") |>
+  e_datazoom(x_index = 0, type = "slider")
+
+```
+
+
