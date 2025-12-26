@@ -1,5 +1,5 @@
 ---
-title: "Sample Dashboard"
+title: "Sample COVID-19 Dashboard"
 author: "Abigail Allison"
 format: dashboard
 css: formatting.css
@@ -43,14 +43,6 @@ To enter **full screen** with any graph, click the expand icon on the bottom rig
 
 #### Row
 <!-- Make 3 value boxes for quick situational awareness -->
-```{r new_cases}
-#| content: valuebox
-#| title: "New Cases (Latest Week)"
-list(
-  icon = "virus",
-  value = tail(weekly_overview$`Number of Cases`, n=1)
-) 
-```
 
 ```{r total_cases}
 #| content: valuebox
@@ -72,6 +64,15 @@ list(
 
 ```
 
+```{r new_cases}
+#| content: valuebox
+#| title: "New Cases (Latest Week)"
+list(
+  icon = "virus",
+  value = tail(weekly_overview$`Number of Cases`, n=1)
+) 
+```
+
 #### Row
 ```{r epi_curve_overview}
 weekly_overview |> 
@@ -82,7 +83,12 @@ weekly_overview |>
   ) |> 
   e_axis_labels(y = "Cases (N)") |> 
   e_legend(show = FALSE) |> 
-  e_title(text = "COVID-19 Cases by Week", left = "center", subtext = "2020-2021") |> 
+  e_title(
+    text = "COVID-19 Cases by Week", 
+    left = "center", 
+    subtext = "2020-2021", 
+    subtextStyle = list(fontSize = 14)
+    ) |> 
   e_datazoom(x_index = 0, type = "slider") 
 
 ```
@@ -93,16 +99,17 @@ weekly_overview |>
 
 ### Column
 
-```{r case_demo}
-# demographics
-cases_demo |>
+#### Row {height="50%"}
+
+```{r case_race}
+race_demo |>
   e_charts(case_race) |>
   e_pie(
     Count,
     radius = c("50%", "70%"),
     name = "Cases"
   ) |>
-  e_title(text = "COVID-19 Cases by Race", left = "center", subtext = "2020–2021") |>
+  e_title(text = "Total Cases by Race (2020-2021)", left = "center") |>
   e_legend(show = FALSE) |>
   e_tooltip(
     formatter = tooltip_race_pie
@@ -110,9 +117,26 @@ cases_demo |>
   e_color(rev(flatly_pie))
 ```
 
-### Column
 
-#### Row {height="60%"}
+#### Row {height="50%"}
+
+```{r case_age_sex}
+cases_age_sex_wide |>
+  e_charts(age_group) |>
+  e_bar(`Female`, stack = "sex") |>
+  e_bar(`Male`, stack = "sex") |>
+  e_bar(`Other/Unknown`, stack = "sex") |>
+  e_bar(`Missing`, stack = "sex") |>
+  e_title(
+    text = "Total Cases by Age Group and Sex (2020-2021)",
+    left = "center"
+  ) |>
+  e_tooltip(trigger = "axis") |>
+  e_legend(top = 25) |> 
+  e_color(flatly_pie)
+```
+
+### Column
 
 ```{r hospitalizations rate}
 weekly_overview |>
@@ -122,6 +146,7 @@ weekly_overview |>
   e_title(
     text = "Weekly Hospitalization Rate Among Reported Cases",
     subtext = "By specimen collection week (2020–2021)",
+    subtextStyle = list(fontSize = 14),
     left = "center"
   ) |>
   e_legend(show = FALSE) |>
@@ -131,23 +156,6 @@ weekly_overview |>
     formatter = tooltip_hospitalizations
   )
 
-
-```
-
-#### Row {height="40%"}
-
-```{r table}
-# table: top 10 postal codes
-fulton_postal_codes <- c(30004,30005,30009,30022,30023,30075,30076,30077,30097,30213,30268,30272,30291,30301,30302,30303,30304,30305,30306,30307,30308,30309,30310,30311,30312,30313,30314,30315,30316,30318,30320,30321,30324,30325,30326,30327,30328,30328,30330,30330,30331,30334,30336,30337,30337,30339,30342,30343,30344,30344,30347,30348,30349,30349,30353,30354,30354,30355,30357,30358,30358,30361,30364,30364,30369,30370,30371,30374,30376,30377,30378,30379,30392,30394,31106,31107,31126,31131,31139,31150,31156)
-
-covid_clean |> 
-  filter(case_zip %in% fulton_postal_codes) |> # would normally geocode
-  group_by(case_zip) |> 
-  summarize(Cases = n()) |> 
-  arrange(desc(Cases)) |> 
-  head(n=10) |> 
-  DT::datatable(rownames = FALSE, colnames=c("Postal Code", "Cases(N)"), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: center; color:black; font-size:115%', 'Postal Codes with Most Cases (2020-2021)'
-  ))
 ```
 
 # Deaths
@@ -165,7 +173,12 @@ e_tooltip(
   e_y_axis(index = 1, name = "Case Fatality Rate") |>
   e_y_axis(name = "Deaths (N)") |>
   e_legend(show = TRUE, top = "8%") |>
-  e_title(text = "COVID-19 Deaths and Case Fatality Rate by Week", left = "center", subtext = "2020-2021") |>
+  e_title(
+    text = "COVID-19 Deaths and Case Fatality Rate by Week", 
+    left = "center", 
+    subtext = "2020-2021", 
+    subtextStyle = list(fontSize = 14)
+    ) |>
   e_datazoom(x_index = 0, type = "slider")
 
 ```

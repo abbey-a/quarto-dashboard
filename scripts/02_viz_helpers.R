@@ -17,21 +17,33 @@ tooltip_race_pie <- htmlwidgets::JS("
     ")
 
 tooltip_hospitalizations <- htmlwidgets::JS("
-      function(params){
-        var p = params[0];
+  function(params){
+    var p = params[0];
 
-        // Format the x value (timestamp -> readable date)
-        var d = new Date(p.axisValue);
-        var dateLabel = d.toISOString().slice(0,10); // YYYY-MM-DD
+    // --- Parse date ---
+    var d = new Date(p.axisValue);
+    var dateLabel = d.toISOString().slice(0,10); // YYYY-MM-DD
 
-        // Extract y value safely (sometimes p.value is [x,y], sometimes number)
-        var y = (Array.isArray(p.value)) ? p.value[1] : p.value;
-        y = Number(y);
+    // --- CDC epi week calculation ---
+    // CDC week: week containing Jan 4 is week 1
+    var year = d.getUTCFullYear();
+    var jan4 = new Date(Date.UTC(year, 0, 4));
+    var firstWeekStart = new Date(jan4);
+    firstWeekStart.setUTCDate(jan4.getUTCDate() - jan4.getUTCDay() + 1);
 
-        return '<strong>' + dateLabel + '</strong><br/>' +
-               'Hospitalization Rate: ' + y.toFixed(1) + '%';
-      }
-    ")
+    var diff = d - firstWeekStart;
+    var cdcWeek = Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
+    if (cdcWeek < 1) cdcWeek = 1;
+
+    // --- Extract y value ---
+    var y = Array.isArray(p.value) ? p.value[1] : p.value;
+    y = Number(y);
+
+    return '<strong>CDC Week ' + cdcWeek + '</strong><br/>' +
+           'Week Starting: ' + dateLabel + '<br/>' +
+           'Hospitalization Rate: ' + y.toFixed(1) + '%';
+  }
+")
 
 tooltip_deaths <- htmlwidgets::JS("
     function(params){
