@@ -11,53 +11,10 @@ engine: knitr
 
 ```{r setup}
 #| echo: false
-pacman::p_load(tidyverse, readxl, janitor, here, echarts4r, stringr)
-
-# read in data
-covid_raw <- read_excel("data/covid_example_data.xlsx")
-
-# tidy column names with janitor
-covid_clean <- clean_names(covid_raw)
-
-# deduplicate any identical rows
-covid_clean <- covid_clean[!duplicated(covid_clean),] # same # rows, no duplicates
-
-# drop "_false" endings from column names
-colnames_clean <- gsub("_false", "", colnames(covid_clean))
-colnames(covid_clean) <- colnames_clean
-```
-
-```{r visuals}
-# Foundational Wrangling for Visuals
-
-# 1. Epi Curve Overview
-# n=122 missing positive sample dates
-pos_sampledt_no_na <- covid_clean |> 
-  select(pos_sampledt) |> 
-  filter(!is.na(pos_sampledt))
-
-# grab first day of week from pos_sampledt
-pos_sampledt_no_na$week_start <- lubridate::floor_date(pos_sampledt_no_na$pos_sampledt, "weeks", week_start = 1)
-
-grouped_overview <- pos_sampledt_no_na |> 
-  group_by(week_start) |> 
-  summarize(`Number of Cases` = n())
-
-grouped_overview$cdc_week <- epiweek(grouped_overview$week_start)
-grouped_overview$label = paste0("CDC Week ", grouped_overview$cdc_week)
-
-# 2. Cases
-cases_demo <- covid_clean |> 
-  group_by(case_race) |> 
-  summarize(Count=n()) |> 
-  mutate(proportion = (Count/sum(Count)*100)) |> 
-  mutate(case_race = str_to_title(ifelse(is.na(case_race), "MISSING", case_race))) |> 
-  arrange(proportion) 
-
-# 3. Deaths
-covid_deaths <- covid_clean %>% 
-  filter(died_covid == "Yes")
-
+library(echarts4r)
+source("scripts/00_clean.R")
+source("scripts/01_wrangling.R")
+source("scripts/02_viz_helpers.R")
 ```
 
 # Overview
@@ -106,10 +63,12 @@ list(
 ```{r total_deaths}
 #| content: valuebox
 #| title: "Total Deaths"
+total_deaths <- sum(covid_clean$died_covid == "Yes", na.rm = TRUE)
 list(
   icon = "people",
-  value = format(nrow(covid_deaths), big.mark=",")
-) 
+  value = format(total_deaths, big.mark=",")
+)
+
 ```
 
 #### Row
@@ -118,13 +77,7 @@ grouped_overview |>
   e_charts(week_start) |> 
   e_bar(`Number of Cases`, bind = label) |> 
   e_tooltip(
-    formatter = htmlwidgets::JS("
-      function(params){
-        return('<strong>' + params.name + 
-                '</strong><br />Week Starting: ' + params.value[0] + 
-                '<br />Number of Cases: ' + params.value[1]) 
-                }
-    ")
+    formatter = tooltip_weekly_cases
   ) |> 
   e_axis_labels(y = "Cases (N)") |> 
   e_legend(show = FALSE) |> 
@@ -140,26 +93,19 @@ grouped_overview |>
 ### Column
 
 ```{r case_demo}
-flatly_pie <- c(
-  "#4E79A7",  # muted blue (anchor)
-  "#76B7B2",  # teal
-  "#59A14F",  # green
-  "#EDC948",  # soft gold (NOT bright yellow)
-  "#AF7AA1",  # muted purple
-  "#F28E2B",  # softened orange
-  "#9C755F",  # warm gray-brown
-  "#BAB0AC"   # neutral gray
-)
-
-
 # demographics
-cases_demo |> 
-  mutate(proportion = format(round(proportion, 2), nsmall=2)) |> 
-  e_charts(case_race) |> 
-  e_pie(proportion, radius = c("50%", "70%"), name= "Percentage(%)") |>
-  e_title(text = "COVID-19 Cases by Race", left="center", subtext = "2020-2021") |>
-  e_legend(show=FALSE) |> 
-  e_tooltip() |> 
+cases_demo |>
+  e_charts(case_race) |>
+  e_pie(
+    Count,
+    radius = c("50%", "70%"),
+    name = "Cases"
+  ) |>
+  e_title(text = "COVID-19 Cases by Race", left = "center", subtext = "2020–2021") |>
+  e_legend(show = FALSE) |>
+  e_tooltip(
+    formatter = tooltip_race_pie
+  ) |>
   e_color(rev(flatly_pie))
 ```
 
@@ -183,11 +129,12 @@ admissions <- covid_clean |>
 admissions |> 
   mutate(admit_rate = format(round(admit_rate, 2), nsmall=2)) |> 
   e_charts(week_start) |> 
-  e_line(admit_rate, name = "Admission Rate") |> 
-  e_title(text = "COVID-19 Hospitalizations by Specimen Collection Week (2020-2021)", subtext = "Per 100K Fulton County Residents (2022 Census)", left="center") |> 
+  e_line(admit_rate, name = "Admission Rate per 100K Residents") |> 
+  e_title(text = "COVID-19 Hospitalization Rate by Specimen Collection Week (2020-2021)", subtext = "Per 100K Fulton County Residents (2022 Census)", left="center") |> 
   e_legend(show=FALSE) |> 
   e_datazoom(type="slider") |> 
   e_tooltip()
+
 ```
 
 #### Row {height="40%"}
@@ -210,70 +157,24 @@ covid_clean |>
 
 ```{r deaths_by_week}
 
-# add line for deaths
-deaths <- covid_clean |> 
-  filter(!is.na(pos_sampledt)) |> 
-  filter(died == "Yes") |> 
-  select(pos_sampledt)
+# combine
+grouped_overview <- grouped_overview |>
+  left_join(covid_deaths, by = "week_start") |>
+  mutate(
+    # replace NA with 0
+    `Number of Deaths` = tidyr::replace_na(`Number of Deaths`, 0L),
+    death_rate = `Number of Deaths` / `Number of Cases`,
+    cdc_week = epiweek(week_start),
+    label = paste0("CDC Week ", cdc_week)
+  )
   
-deaths$week_start = lubridate::floor_date(deaths$pos_sampledt, "weeks", week_start = 1)
-  
-deaths <- deaths |> 
-  group_by(week_start) |> 
-  summarize(`Number of Deaths` = n()) 
-
-deaths$cdc_week = epiweek(deaths$week_start)
-deaths$label = paste0("CDC Week ", deaths$cdc_week)
-
-# join deaths and grouped_overview
-grouped_overview <- left_join(grouped_overview, deaths) # will join by week_start, common variable
-# change NAs in number of deaths column to 0
-grouped_overview[is.na(grouped_overview$`Number of Deaths`),5] <- 0
-grouped_overview$death_rate = (grouped_overview$`Number of Deaths`/grouped_overview$`Number of Cases`)
-
-deaths <- left_join(deaths, grouped_overview)
-
-deaths |>
+grouped_overview |>
   e_charts(week_start) |>
   e_bar(`Number of Deaths`, bind = label) |>
   e_line(death_rate, y_index = 1, bind = label, name = "Case Fatality Rate") |>
 e_tooltip(
   trigger = "axis",
-  formatter = htmlwidgets::JS("
-    function(params){
-
-      function getY(p){
-        var v = p.value;
-        if (Array.isArray(v)) return v[v.length - 1]; // y
-        return v;
-      }
-
-      var bar  = params.find(p => p.seriesType === 'bar');
-      var line = params.find(p => p.seriesType === 'line');
-
-      // CDC Week label comes from bind -> params[i].name
-      var cdcWeekLabel = params[0].name; // e.g., 'CDC Week 31'
-
-      // Week start date from axis value or from value[0]
-      var weekStart =
-        (params[0].axisValueLabel || params[0].axisValue) ||
-        (Array.isArray(params[0].value) ? params[0].value[0] : params[0].name);
-
-      var deaths = bar  ? getY(bar)  : null;
-      var cfr    = line ? getY(line) : null;
-
-      var deathsTxt = (deaths === null || deaths === undefined) ? 'NA' : deaths;
-
-      var cfrTxt = (cfr === null || cfr === undefined || isNaN(cfr))
-        ? 'NA'
-        : (Number(cfr) * 100).toFixed(2) + '%';
-
-      return '<strong>' + cdcWeekLabel + '</strong>'
-        + '<br/>Week Starting: ' + weekStart
-        + '<br/>Number of Deaths: ' + deathsTxt
-        + '<br/>Case Fatality Rate: ' + cfrTxt;
-    }
-  ")
+  formatter = tooltip_deaths
 ) |>
   e_y_axis(index = 1, name = "Case Fatality Rate") |>
   e_y_axis(name = "Deaths (N)") |>
