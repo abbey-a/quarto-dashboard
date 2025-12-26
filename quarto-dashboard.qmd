@@ -47,7 +47,7 @@ To enter **full screen** with any graph, click the expand icon on the bottom rig
 #| title: "New Cases (Latest Week)"
 list(
   icon = "virus",
-  value = tail(grouped_overview$`Number of Cases`, n=1)
+  value = tail(weekly_overview$`Number of Cases`, n=1)
 ) 
 ```
 
@@ -73,7 +73,7 @@ list(
 
 #### Row
 ```{r epi_curve_overview}
-grouped_overview |> 
+weekly_overview |> 
   e_charts(week_start) |> 
   e_bar(`Number of Cases`, bind = label) |> 
   e_tooltip(
@@ -156,19 +156,8 @@ covid_clean |>
 # Deaths
 
 ```{r deaths_by_week}
-
-# combine
-grouped_overview <- grouped_overview |>
-  left_join(covid_deaths, by = "week_start") |>
-  mutate(
-    # replace NA with 0
-    `Number of Deaths` = tidyr::replace_na(`Number of Deaths`, 0L),
-    death_rate = `Number of Deaths` / `Number of Cases`,
-    cdc_week = epiweek(week_start),
-    label = paste0("CDC Week ", cdc_week)
-  )
   
-grouped_overview |>
+weekly_overview |>
   e_charts(week_start) |>
   e_bar(`Number of Deaths`, bind = label) |>
   e_line(death_rate, y_index = 1, bind = label, name = "Case Fatality Rate") |>
