@@ -152,7 +152,7 @@ list(
 
 ```{r hosp-numbers-new}
 #| content: valuebox
-#| title: "New Admissions"
+#| title: "New Admissions (Latest Week)"
 list(
   icon = "heart-pulse",
   value = tail(weekly_overview$`Number Hospitalized`, n=1)
