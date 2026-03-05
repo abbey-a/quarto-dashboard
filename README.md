@@ -8,7 +8,7 @@ This project originated from a coding assessment request to analyze an outbreak 
 
 ------------------------------------------------------------------------
 
-## ⚠️ Viewing Instructions (Important)
+### Viewing Instructions
 
 **This dashboard is a self-contained HTML file and must be downloaded and opened locally in a web browser to render correctly.**\
 GitHub’s file preview does **not** support the JavaScript required for interactive charts and tooltips. To view:
@@ -21,7 +21,7 @@ Further tips for use and interactivity are included on the dashboard landing pag
 
 ------------------------------------------------------------------------
 
-## Project Structure
+### Project Structure
 
 -   `quarto-dashboard.qmd` – Quarto source file
 -   `scripts/` – Modularized data preparation and helper functions
