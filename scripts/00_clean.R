@@ -1,14 +1,17 @@
-pacman::p_load(tidyverse, readxl, janitor, stringr)
+pacman::p_load(tidyverse, readxl, janitor, stringr, lubridate)
 
-# read in data
+# Read and standardize the synthetic line list.
 covid_raw <- read_excel("data/covid_example_data.xlsx")
 
-# tidy column names with janitor
-covid_clean <- clean_names(covid_raw)
+covid_clean <- covid_raw |>
+  clean_names() |>
+  rename_with(~ str_remove(.x, "_false$")) |>
+  distinct()
 
-# deduplicate any identical rows
-covid_clean <- covid_clean[!duplicated(covid_clean),] # same # rows, no duplicates
+# Fourteen repeated PIDs have matching clinical/date fields and differ only in
+# synthetic geography. Retain one deterministic record per case ID.
+duplicate_pid_rows <- sum(duplicated(covid_clean$pid) & !is.na(covid_clean$pid))
 
-# drop "_false" endings from column names
-colnames_clean <- gsub("_false", "", colnames(covid_clean))
-colnames(covid_clean) <- colnames_clean
+covid_clean <- covid_clean |>
+  arrange(pid, case_zip, latitude_jitt, longitude_jitt) |>
+  distinct(pid, .keep_all = TRUE)

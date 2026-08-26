@@ -1,17 +1,21 @@
 ---
-title: "Sample COVID-19 Dashboard"
+title: "COVID-19 Situational Dashboard"
 author: "Abigail Allison"
-format: dashboard
+format:
+  dashboard:
+    theme: flatly
+    orientation: rows
+    scrolling: false
 css: formatting.css
-theme: flatly
 embed-resources: true
 editor: source
 engine: knitr
 ---
-<!-- Data preparation and helper functions are modularized in `scripts/` for readability and reuse; key analytical and visualization steps are shown inline. -->
 
 ```{r setup}
 #| echo: false
+#| message: false
+#| warning: false
 library(echarts4r)
 source("scripts/00_clean.R")
 source("scripts/01_wrangling.R")
@@ -24,184 +28,178 @@ source("scripts/02_viz_helpers.R")
 
 #### {.sidebar}
 
-This project originated from a coding assessment request to analyze an outbreak line list and deliver a situational report for epidemiologists.
+##### Reporting Status
 
-The underlying data is a synthetic COVID-19 [dataset](https://github.com/appliedepi/epiRhandbook_eng/tree/master/data/covid_example_data) provided by the global non-profit organization Applied Epi.
+**Latest complete week**<br>
+`r latest_complete_week_label`
 
-All graphs were created using the R package `echarts4r`.
+The week beginning `r format(as.Date(final_week_start), "%b %d, %Y")` is incomplete and excluded from headline metrics.
 
-::: {.callout-tip title="Usage Tips"}
+##### Data Timing
 
-Hover your cursor over graph contents to see a **tooltip** for additional information. 
+Cases use specimen collection date, admissions use admission date, and deaths use date of death.
 
-Use the interactive **zoom slider** under the x-axis to select a specific date range.
+Median reporting lag was `r round(reporting_lag_median)` days; recent counts may increase as delayed reports are received.
 
-To enter **full screen** with any graph, click the expand icon on the bottom right.
-:::
+##### Scope
+
+Synthetic confirmed COVID-19 line-list data from [Applied Epi](https://github.com/appliedepi/epirhandbook/tree/master/data/covid_example_data).
 
 ### Column
 
-#### Row
-<!-- Make 3 value boxes for quick situational awareness -->
+#### Row {height="22%"}
 
-```{r total_cases}
-#| content: valuebox
-#| title: "Total Cases"
-list(
-  icon = "lungs",
-  value = format(nrow(covid_clean), big.mark=",")
-)
-```
+::: {.valuebox title="Cases" icon="virus" color="primary"}
+`r format(latest_complete_metrics$cases, big.mark = ",")`
 
-```{r total_deaths}
-#| content: valuebox
-#| title: "Total Deaths"
-total_deaths <- sum(covid_clean$died_covid == "Yes", na.rm = TRUE)
-list(
-  icon = "people",
-  value = format(total_deaths, big.mark=",")
-)
+[`r latest_complete_metrics$cases_wow_label`]{.kpi-delta}
+:::
 
-```
+::: {.valuebox title="Admissions" icon="hospital" color="warning"}
+`r format(latest_complete_metrics$admissions, big.mark = ",")`
 
-```{r new_cases}
-#| content: valuebox
-#| title: "New Cases (Latest Week)"
-list(
-  icon = "virus",
-  value = tail(weekly_overview$`Number of Cases`, n=1)
-) 
-```
+[`r latest_complete_metrics$admissions_wow_label`]{.kpi-delta}
+:::
 
-#### Row
-```{r epi_curve_overview}
-weekly_overview |> 
-  e_charts(week_start) |> 
-  e_bar(`Number of Cases`, bind = label) |> 
-  e_tooltip(
-    formatter = tooltip_weekly_cases
-  ) |> 
-  e_axis_labels(y = "Cases (N)") |> 
-  e_legend(show = FALSE) |> 
+::: {.valuebox title="COVID-19 Deaths" icon="heart-pulse" color="danger"}
+`r format(latest_complete_metrics$deaths, big.mark = ",")`
+
+[`r latest_complete_metrics$deaths_wow_label`]{.kpi-delta}
+:::
+
+#### Row {height="78%"}
+
+```{r weekly-event-trends}
+weekly_events |>
+  e_charts(week_label) |>
+  e_bar(
+    cases_complete,
+    name = "Cases",
+    y_index = 0,
+    itemStyle = list(color = dashboard_colors$cases),
+    barMaxWidth = 18
+  ) |>
+  e_bar(
+    cases_incomplete,
+    name = "Cases (incomplete week)",
+    y_index = 0,
+    itemStyle = list(color = dashboard_colors$muted),
+    barMaxWidth = 18,
+    barGap = "-100%"
+  ) |>
+  e_line(
+    admissions,
+    name = "Admissions",
+    y_index = 1,
+    symbol = "none",
+    lineStyle = list(color = dashboard_colors$admissions, width = 2.5),
+    itemStyle = list(color = dashboard_colors$admissions)
+  ) |>
+  e_line(
+    deaths,
+    name = "Deaths",
+    y_index = 1,
+    symbol = "none",
+    lineStyle = list(color = dashboard_colors$deaths, width = 2.5),
+    itemStyle = list(color = dashboard_colors$deaths)
+  ) |>
   e_title(
-    text = "COVID-19 Cases by Week", 
-    left = "center", 
-    subtext = "2020-2021", 
-    subtextStyle = list(fontSize = 14)
-    ) |> 
-  e_datazoom(x_index = 0, type = "slider") 
-
+    text = "Weekly Event Trends",
+    #subtext = "Correct event dates | gray = incomplete final week",
+    subtextStyle = list(fontSize = 11),
+    left = "center"
+  ) |>
+  e_legend(top = 48) |>
+  e_tooltip(trigger = "axis", formatter = tooltip_weekly_events) |>
+  e_x_axis(
+    name = "Week starting Monday",
+    nameLocation = "middle",
+    nameGap = 32,
+    axisLabel = list(formatter = axis_date_formatter, hideOverlap = TRUE),
+    axisLine = list(lineStyle = list(color = dashboard_colors$grid))
+  ) |>
+  e_y_axis(
+    index = 0,
+    name = "Cases",
+    nameGap = 12,
+    nameTextStyle = list(
+      color = dashboard_colors$muted,
+      fontSize = 11,
+      fontWeight = 600
+    ),
+    splitLine = list(lineStyle = list(color = dashboard_colors$grid))
+  ) |>
+  e_y_axis(
+    index = 1,
+    name = "Admissions | Deaths",
+    nameGap = 12,
+    nameTextStyle = list(
+      color = dashboard_colors$muted,
+      fontSize = 11,
+      fontWeight = 600
+    ),
+    splitLine = list(show = FALSE)
+  ) |>
+  e_datazoom(x_index = 0, type = "slider", height = 20, bottom = 2) |>
+  e_grid(top = 92, right = 64, bottom = 72, left = 64)
 ```
 
-# Cases
+# Severity by Age
 
 ## Row
 
-### Column
+### Column {width="72%"}
 
-#### Row {height="50%"}
-
-```{r case_race}
-race_demo |>
-  e_charts(case_race) |>
-  e_pie(
-    Count,
-    radius = c("50%", "70%"),
-    name = "Cases"
-  ) |>
-  e_title(text = "Total Cases by Race (2020-2021)", left = "center") |>
-  e_legend(show = FALSE) |>
-  e_tooltip(
-    formatter = tooltip_race_pie
-  ) |>
-  e_color(rev(flatly_pie))
-```
-
-
-#### Row {height="50%"}
-
-```{r case_age_sex}
-cases_age_sex_wide |>
+```{r severity-age-chart}
+age_severity |>
   e_charts(age_group) |>
-  e_bar(`Female`, stack = "sex") |>
-  e_bar(`Male`, stack = "sex") |>
-  e_bar(`Other/Unknown`, stack = "sex") |>
-  e_bar(`Missing`, stack = "sex") |>
+  e_bar(
+    hospitalization_rate,
+    name = "Hospitalized among known",
+    bind = hospitalization_detail,
+    itemStyle = list(color = dashboard_colors$admissions),
+    barMaxWidth = 42
+  ) |>
+  e_bar(
+    death_rate,
+    name = "COVID-19 deaths among known",
+    bind = death_detail,
+    itemStyle = list(color = dashboard_colors$deaths),
+    barMaxWidth = 42
+  ) |>
   e_title(
-    text = "Total Cases by Age Group and Sex (2020-2021)",
+    text = "Severity by Age",
+    subtext = "Rates among records with known outcome status; hover for counts and completeness.",
+    subtextStyle = list(fontSize = 11),
     left = "center"
   ) |>
-e_tooltip(
-  trigger = "axis",
-  formatter = tooltip_sex_age
-) |> 
-  e_legend(top = 25) |> 
-  e_color(flatly_pie)
-```
-
-### Column
-#### Row
-```{r hosp-numbers-total}
-#| content: valuebox
-#| title: "Total Hospitalized"
-list(
-  icon = "hospital",
-  value = format(sum(weekly_overview$`Number Hospitalized`), big.mark=",")
-) 
-```
-
-```{r hosp-numbers-new}
-#| content: valuebox
-#| title: "New Admissions (Latest Week)"
-list(
-  icon = "heart-pulse",
-  value = tail(weekly_overview$`Number Hospitalized`, n=1)
-) 
-```
-#### Row
-```{r hospitalizations rate}
-weekly_overview |>
-  mutate(hosp_rate_pct = hosp_rate * 100) |>
-  e_charts(week_start) |>
-  e_line(hosp_rate_pct, name = "Hospitalization Rate (%)") |>
-  e_title(
-    text = "Weekly Hospitalization Rate Among Reported Cases",
-    subtext = "By specimen collection week (2020–2021)",
-    subtextStyle = list(fontSize = 14),
-    left = "center"
+  e_legend(top = 48) |>
+  e_tooltip(trigger = "axis", formatter = tooltip_age_severity) |>
+  e_x_axis(
+    name = "Age group",
+    nameLocation = "middle",
+    nameGap = 32,
+    axisLine = list(lineStyle = list(color = dashboard_colors$grid))
   ) |>
-  e_legend(show = FALSE) |>
-  e_datazoom(type = "slider") |>
-  e_tooltip(
-    trigger = "axis",
-    formatter = tooltip_hospitalizations
-  )
-
+  e_y_axis(
+    axisLabel = list(formatter = percent_axis_formatter),
+    splitLine = list(lineStyle = list(color = dashboard_colors$grid))
+  ) |>
+  e_grid(top = 92, right = 28, bottom = 60, left = 68)
 ```
 
-# Deaths
+### Column {width="28%"}
 
-```{r deaths_by_week}
-  
-weekly_overview |>
-  e_charts(week_start) |>
-  e_bar(`Number of Deaths`, bind = label) |>
-  e_line(death_rate, y_index = 1, bind = label, name = "Case Fatality Rate") |>
-e_tooltip(
-  trigger = "axis",
-  formatter = tooltip_deaths
-) |>
-  e_y_axis(index = 1, name = "Case Fatality Rate") |>
-  e_y_axis(name = "Deaths (N)") |>
-  e_legend(show = TRUE, top = "8%") |>
-  e_title(
-    text = "COVID-19 Deaths and Case Fatality Rate by Week", 
-    left = "center", 
-    subtext = "2020-2021", 
-    subtextStyle = list(fontSize = 14)
-    ) |>
-  e_datazoom(x_index = 0, type = "slider")
+#### Key Signal
 
-```
+Adults **65+** account for these shares of reported outcomes:
 
+- **`r sprintf("%.1f%%", age_65_summary$case_share)`** of reported cases
+- **`r sprintf("%.1f%%", age_65_summary$hospitalization_share)`** of reported hospitalizations
+- **`r sprintf("%.1f%%", age_65_summary$death_share)`** of reported COVID-19 deaths
 
+These are shares of reported events, not population risks.
+
+#### Outcome Completeness
+
+Outcome status is available for **`r sprintf("%.1f%%", overall_hospitalization_completeness)`** of records for hospitalization and **`r sprintf("%.1f%%", overall_death_completeness)`** for COVID-19 death. Rates are calculated among records with known status and should be interpreted cautiously.

@@ -8,7 +8,7 @@
 
 <meta name="author" content="Abigail Allison">
 
-<title>Sample COVID-19 Dashboard</title>
+<title>COVID-19 Situational Dashboard</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -4887,33 +4887,128 @@ if (HTMLWidgets.shinyMode) {
 </script>
 
 
-<style type="text/css">
-.callout .callout-header {
-display: flex;
-flex-direction: row;
-align-items: center;
-justify-content: flex-start;
-gap: 0.5rem;
+<style type="text/css">:root {
+--dashboard-ink: #243442;
+--dashboard-muted: #667580;
+--dashboard-border: #dce3e8;
+--dashboard-surface: #ffffff;
+--dashboard-background: #f4f6f7;
 }
-
-.callout .callout-header .callout-icon-container,
-.callout .callout-header .callout-title-container {
-flex: 0 0 auto !important;
-width: auto !important;
-height: auto !important;
+body {
+color: var(--dashboard-ink);
+background: var(--dashboard-background);
+letter-spacing: 0;
 }
-
-.callout .callout-header .callout-title-container {
-display: inline-flex;
-align-items: center;
+.navbar {
+border-bottom: 1px solid #18364a;
+box-shadow: none;
 }
-
-.callout .callout-header .callout-icon-container {
-margin: 0 !important;
+.navbar-title {
+font-weight: 650;
 }
-
-aside .html-fill-container {
+.dashboard-page {
+gap: 0.75rem;
+}
+.card,
+.bslib-card,
+.value-box,
+.bslib-value-box {
+border: 1px solid var(--dashboard-border);
+border-radius: 6px;
+box-shadow: 0 1px 2px rgba(36, 52, 66, 0.06);
+}
+.card-header {
+color: var(--dashboard-ink);
+font-weight: 650;
+background: var(--dashboard-surface);
+border-bottom-color: var(--dashboard-border);
+}
+.value-box .value-box-title,
+.bslib-value-box .value-box-title {
+font-size: 0.78rem !important;
+font-weight: 700;
+letter-spacing: 0;
+text-transform: uppercase;
+}
+.value-box .value-box-value,
+.bslib-value-box .value-box-value {
+font-size: clamp(1.4rem, 2.2vw, 2rem) !important;
+line-height: 1.15;
+letter-spacing: 0;
+white-space: nowrap;
+}
+.valuebox .value-box-value > * {
+margin: 0;
+font-size: inherit;
+line-height: inherit;
+}
+.valuebox .kpi-delta {
+display: block;
+margin-top: 0.25rem;
 font-size: 0.9rem;
+font-weight: 650;
+line-height: 1.2;
+white-space: nowrap;
+}
+.valuebox .value-box-area > p:last-child {
+margin: 0;
+}
+.bslib-value-box.bg-primary {
+background-color: #3d789c !important;
+}
+.bslib-value-box.bg-warning {
+background-color: #bd7c2b !important;
+color: #ffffff !important;
+}
+.bslib-value-box.bg-danger {
+background-color: #ad4e53 !important;
+}
+aside,
+.sidebar {
+color: var(--dashboard-ink);
+background: #eef2f4;
+border-right: 1px solid var(--dashboard-border);
+}
+aside .html-fill-container,
+.sidebar .html-fill-container {
+font-size: 0.86rem;
+line-height: 1.45;
+}
+aside h3,
+.sidebar h3 {
+margin-top: 1rem;
+margin-bottom: 0.4rem;
+color: var(--dashboard-muted);
+font-size: 0.75rem;
+font-weight: 750;
+letter-spacing: 0;
+text-transform: uppercase;
+}
+.dashboard-page .markdown h4 {
+color: var(--dashboard-muted);
+font-size: 0.78rem;
+font-weight: 750;
+letter-spacing: 0;
+text-transform: uppercase;
+}
+.dashboard-page .markdown ul {
+padding-left: 1.2rem;
+}
+.dashboard-page .markdown li {
+margin-bottom: 0.45rem;
+}
+.echarts4r {
+background: var(--dashboard-surface);
+}
+@media (max-width: 768px) {
+.value-box .value-box-value,
+.bslib-value-box .value-box-value {
+font-size: 1.1rem;
+}
+aside .html-fill-container,
+.sidebar .html-fill-container {
+font-size: 0.82rem;
+}
 }
 </style>
 </head>
@@ -4932,71 +5027,73 @@ font-size: 0.9rem;
 
 
       <div class="navbar-title">
-        <div class="navbar-title-text"><a href="#">Sample COVID-19 Dashboard</a></div>
+        <div class="navbar-title-text"><a href="#">COVID-19 Situational Dashboard</a></div>
         
         <div class="navbar-author">Abigail Allison</div>
       </div>
     </div>
-<div id="dashboard-collapse" class="navbar-collapse collapse"><ul class="navbar-nav navbar-nav-scroll me-auto" role="tablist"><li class="nav-item" role="presentation"><a id="tab-overview" class="nav-link active" data-bs-toggle="tab" role="tab" data-bs-target="#overview" data-scrolling="false" href="#overview" aria-controls="overview" aria-selected="true"><span class="nav-link-text">Overview</span></a></li><li class="nav-item" role="presentation"><a id="tab-cases" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#cases" data-scrolling="false" href="#cases" aria-controls="cases" aria-selected="false"><span class="nav-link-text">Cases</span></a></li><li class="nav-item" role="presentation"><a id="tab-deaths" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#deaths" data-scrolling="false" href="#deaths" aria-controls="deaths" aria-selected="false"><span class="nav-link-text">Deaths</span></a></li></ul></div></div>
+<div id="dashboard-collapse" class="navbar-collapse collapse"><ul class="navbar-nav navbar-nav-scroll me-auto" role="tablist"><li class="nav-item" role="presentation"><a id="tab-overview" class="nav-link active" data-bs-toggle="tab" role="tab" data-bs-target="#overview" data-scrolling="false" href="#overview" aria-controls="overview" aria-selected="true"><span class="nav-link-text">Overview</span></a></li><li class="nav-item" role="presentation"><a id="tab-severity-by-age" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#severity-by-age" data-scrolling="false" href="#severity-by-age" aria-controls="severity-by-age" aria-selected="false"><span class="nav-link-text">Severity by Age</span></a></li></ul></div></div>
 </nav>
 </header>
 <div class="page-layout-custom quarto-dashboard-content bslib-gap-spacing html-fill-container bslib-page-fill quarto-dashboard-pages">  
 
-<!-- Data preparation and helper functions are modularized in `scripts/` for readability and reuse; key analytical and visualization steps are shown inline. -->
 <div class="bslib-grid-item html-fill-item tab-content bslib-grid" data-layout="fill" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div id="overview" class="dashboard-page tab-pane show active html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-overview">
 <div class="html-fill-item html-fill-container bslib-grid dashboard-sidebar-container" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="bslib-sidebar-layout html-fill-item html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
 grid-auto-rows: minmax(0, 1fr);">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, max-content) minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 22fr) minmax(3em, 78fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr);
 grid-auto-rows: minmax(0, 1fr);">
-<!-- Make 3 value boxes for quick situational awareness --><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
+<div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-primary showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
 <div class="card-body html-fill-item html-fill-container">
-<div data-icon="lungs" class="html-fill-item html-fill-container value-box-grid">
-<div class="value-box-showcase html-fill-item html-fill-container">
-
-<i class="bi bi-lungs"></i></div>
-<div class="value-box-area">
-<p class="value-box-title">
-Total Cases
-</p>
-<p class="value-box-value">
-82,101
-</p>
-</div>
-</div>
-</div>
-<script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
-<div class="card-body html-fill-item html-fill-container">
-<div data-icon="people" class="html-fill-item html-fill-container value-box-grid">
-<div class="value-box-showcase html-fill-item html-fill-container">
-
-<i class="bi bi-people"></i></div>
-<div class="value-box-area">
-<p class="value-box-title">
-Total Deaths
-</p>
-<p class="value-box-value">
-1,338
-</p>
-</div>
-</div>
-</div>
-<script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
-<div class="card-body html-fill-item html-fill-container">
-<div data-icon="virus" class="html-fill-item html-fill-container value-box-grid">
+<div class="html-fill-item html-fill-container value-box-grid">
 <div class="value-box-showcase html-fill-item html-fill-container">
 
 <i class="bi bi-virus"></i></div>
 <div class="value-box-area">
 <p class="value-box-title">
-New Cases (Latest Week)
+Cases
 </p>
 <p class="value-box-value">
-9
+20
 </p>
+<span class="kpi-delta">↓ 20% vs prior week</span>
+</div>
+</div>
+</div>
+<script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div><div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-warning showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-showcase html-fill-item html-fill-container">
+
+<i class="bi bi-hospital"></i></div>
+<div class="value-box-area">
+<p class="value-box-title">
+Admissions
+</p>
+<p class="value-box-value">
+1
+</p>
+<span class="kpi-delta">+1 vs prior week</span>
+</div>
+</div>
+</div>
+<script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div><div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-danger showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-showcase html-fill-item html-fill-container">
+
+<i class="bi bi-heart-pulse"></i></div>
+<div class="value-box-area">
+<p class="value-box-title">
+COVID-19 Deaths
+</p>
+<p class="value-box-value">
+0
+</p>
+<span class="kpi-delta">No change</span>
 </div>
 </div>
 </div>
@@ -5007,8 +5104,8 @@ grid-auto-rows: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-body html-fill-item html-fill-container">
 <div class="cell-output-display html-fill-item html-fill-container">
-<div class="echarts4r html-widget html-fill-item html-fill-container" id="htmlwidget-0e29bf6445925e49cfc6" style="width:100%;height:500px;"></div>
-<script type="application/json" data-for="htmlwidget-0e29bf6445925e49cfc6">{"x":{"theme":"","tl":false,"draw":true,"renderer":"canvas","events":[],"buttons":[],"opts":{"yAxis":[{"show":true,"name":"Cases (N)"}],"xAxis":[{"data":["2020-01-27T00:00:00Z","2020-02-10T00:00:00Z","2020-02-17T00:00:00Z","2020-02-24T00:00:00Z","2020-03-02T00:00:00Z","2020-03-09T00:00:00Z","2020-03-16T00:00:00Z","2020-03-23T00:00:00Z","2020-03-30T00:00:00Z","2020-04-06T00:00:00Z","2020-04-13T00:00:00Z","2020-04-20T00:00:00Z","2020-04-27T00:00:00Z","2020-05-04T00:00:00Z","2020-05-11T00:00:00Z","2020-05-18T00:00:00Z","2020-05-25T00:00:00Z","2020-06-01T00:00:00Z","2020-06-08T00:00:00Z","2020-06-15T00:00:00Z","2020-06-22T00:00:00Z","2020-06-29T00:00:00Z","2020-07-06T00:00:00Z","2020-07-13T00:00:00Z","2020-07-20T00:00:00Z","2020-07-27T00:00:00Z","2020-08-03T00:00:00Z","2020-08-10T00:00:00Z","2020-08-17T00:00:00Z","2020-08-24T00:00:00Z","2020-08-31T00:00:00Z","2020-09-07T00:00:00Z","2020-09-14T00:00:00Z","2020-09-21T00:00:00Z","2020-09-28T00:00:00Z","2020-10-05T00:00:00Z","2020-10-12T00:00:00Z","2020-10-19T00:00:00Z","2020-10-26T00:00:00Z","2020-11-02T00:00:00Z","2020-11-09T00:00:00Z","2020-11-16T00:00:00Z","2020-11-23T00:00:00Z","2020-11-30T00:00:00Z","2020-12-07T00:00:00Z","2020-12-14T00:00:00Z","2020-12-21T00:00:00Z","2020-12-28T00:00:00Z","2021-01-04T00:00:00Z","2021-01-11T00:00:00Z","2021-01-18T00:00:00Z","2021-01-25T00:00:00Z","2021-02-01T00:00:00Z","2021-02-08T00:00:00Z","2021-02-15T00:00:00Z","2021-02-22T00:00:00Z","2021-03-01T00:00:00Z","2021-03-08T00:00:00Z","2021-03-15T00:00:00Z","2021-03-22T00:00:00Z","2021-03-29T00:00:00Z","2021-04-05T00:00:00Z","2021-04-12T00:00:00Z","2021-04-19T00:00:00Z","2021-04-26T00:00:00Z","2021-05-03T00:00:00Z","2021-05-10T00:00:00Z","2021-05-17T00:00:00Z","2021-05-24T00:00:00Z","2021-05-31T00:00:00Z","2021-06-07T00:00:00Z","2021-06-14T00:00:00Z","2021-06-21T00:00:00Z","2021-06-28T00:00:00Z","2021-07-05T00:00:00Z","2021-07-12T00:00:00Z","2021-07-19T00:00:00Z"],"type":"time","boundaryGap":true,"name":""}],"legend":{"data":["Number of Cases"],"show":false,"type":"plain"},"series":[{"data":[{"value":["2020-01-27","   1"],"name":"CDC Week 5"},{"value":["2020-02-10","   5"],"name":"CDC Week 7"},{"value":["2020-02-17","  35"],"name":"CDC Week 8"},{"value":["2020-02-24","  75"],"name":"CDC Week 9"},{"value":["2020-03-02"," 135"],"name":"CDC Week 10"},{"value":["2020-03-09"," 212"],"name":"CDC Week 11"},{"value":["2020-03-16"," 265"],"name":"CDC Week 12"},{"value":["2020-03-23"," 309"],"name":"CDC Week 13"},{"value":["2020-03-30"," 357"],"name":"CDC Week 14"},{"value":["2020-04-06"," 438"],"name":"CDC Week 15"},{"value":["2020-04-13"," 438"],"name":"CDC Week 16"},{"value":["2020-04-20"," 427"],"name":"CDC Week 17"},{"value":["2020-04-27"," 398"],"name":"CDC Week 18"},{"value":["2020-05-04"," 369"],"name":"CDC Week 19"},{"value":["2020-05-11"," 357"],"name":"CDC Week 20"},{"value":["2020-05-18"," 436"],"name":"CDC Week 21"},{"value":["2020-05-25"," 597"],"name":"CDC Week 22"},{"value":["2020-06-01"," 853"],"name":"CDC Week 23"},{"value":["2020-06-08","1240"],"name":"CDC Week 24"},{"value":["2020-06-15","1497"],"name":"CDC Week 25"},{"value":["2020-06-22","1747"],"name":"CDC Week 26"},{"value":["2020-06-29","1885"],"name":"CDC Week 27"},{"value":["2020-07-06","2071"],"name":"CDC Week 28"},{"value":["2020-07-13","2145"],"name":"CDC Week 29"},{"value":["2020-07-20","2101"],"name":"CDC Week 30"},{"value":["2020-07-27","1905"],"name":"CDC Week 31"},{"value":["2020-08-03","1615"],"name":"CDC Week 32"},{"value":["2020-08-10","1385"],"name":"CDC Week 33"},{"value":["2020-08-17","1091"],"name":"CDC Week 34"},{"value":["2020-08-24"," 990"],"name":"CDC Week 35"},{"value":["2020-08-31"," 837"],"name":"CDC Week 36"},{"value":["2020-09-07"," 762"],"name":"CDC Week 37"},{"value":["2020-09-14"," 736"],"name":"CDC Week 38"},{"value":["2020-09-21"," 687"],"name":"CDC Week 39"},{"value":["2020-09-28"," 741"],"name":"CDC Week 40"},{"value":["2020-10-05"," 761"],"name":"CDC Week 41"},{"value":["2020-10-12"," 861"],"name":"CDC Week 42"},{"value":["2020-10-19"," 927"],"name":"CDC Week 43"},{"value":["2020-10-26","1101"],"name":"CDC Week 44"},{"value":["2020-11-02","1305"],"name":"CDC Week 45"},{"value":["2020-11-09","1539"],"name":"CDC Week 46"},{"value":["2020-11-16","1931"],"name":"CDC Week 47"},{"value":["2020-11-23","2117"],"name":"CDC Week 48"},{"value":["2020-11-30","2477"],"name":"CDC Week 49"},{"value":["2020-12-07","2825"],"name":"CDC Week 50"},{"value":["2020-12-14","3137"],"name":"CDC Week 51"},{"value":["2020-12-21","3300"],"name":"CDC Week 52"},{"value":["2020-12-28","3615"],"name":"CDC Week 53"},{"value":["2021-01-04","3485"],"name":"CDC Week 1"},{"value":["2021-01-11","3061"],"name":"CDC Week 2"},{"value":["2021-01-18","2846"],"name":"CDC Week 3"},{"value":["2021-01-25","2603"],"name":"CDC Week 4"},{"value":["2021-02-01","2150"],"name":"CDC Week 5"},{"value":["2021-02-08","1800"],"name":"CDC Week 6"},{"value":["2021-02-15","1483"],"name":"CDC Week 7"},{"value":["2021-02-22","1156"],"name":"CDC Week 8"},{"value":["2021-03-01","1014"],"name":"CDC Week 9"},{"value":["2021-03-08"," 832"],"name":"CDC Week 10"},{"value":["2021-03-15"," 808"],"name":"CDC Week 11"},{"value":["2021-03-22"," 745"],"name":"CDC Week 12"},{"value":["2021-03-29"," 750"],"name":"CDC Week 13"},{"value":["2021-04-05"," 701"],"name":"CDC Week 14"},{"value":["2021-04-12"," 611"],"name":"CDC Week 15"},{"value":["2021-04-19"," 534"],"name":"CDC Week 16"},{"value":["2021-04-26"," 506"],"name":"CDC Week 17"},{"value":["2021-05-03"," 482"],"name":"CDC Week 18"},{"value":["2021-05-10"," 374"],"name":"CDC Week 19"},{"value":["2021-05-17"," 299"],"name":"CDC Week 20"},{"value":["2021-05-24"," 215"],"name":"CDC Week 21"},{"value":["2021-05-31"," 162"],"name":"CDC Week 22"},{"value":["2021-06-07","  94"],"name":"CDC Week 23"},{"value":["2021-06-14","  90"],"name":"CDC Week 24"},{"value":["2021-06-21","  57"],"name":"CDC Week 25"},{"value":["2021-06-28","  29"],"name":"CDC Week 26"},{"value":["2021-07-05","  25"],"name":"CDC Week 27"},{"value":["2021-07-12","  20"],"name":"CDC Week 28"},{"value":["2021-07-19","   9"],"name":"CDC Week 29"}],"name":"Number of Cases","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d"}],"tooltip":{"trigger":"item","formatter":"\n      function(params){\n        return('<strong>' + params.name + \n                '<\/strong><br />Week Starting: ' + params.value[0] + \n                '<br />Number of Cases: ' + params.value[1]) \n                }\n    "},"title":[{"left":"center","subtextStyle":{"fontSize":14},"text":"COVID-19 Cases by Week","subtext":"2020-2021"}],"dataZoom":[{"type":"slider","xAxisIndex":0}],"toolbox":{"feature":{"dataZoom":[]}}},"dispose":true},"evals":["opts.tooltip.formatter"],"jsHooks":[]}</script>
+<div class="echarts4r html-widget html-fill-item html-fill-container" id="htmlwidget-0ccd1b057833a77151b1" style="width:100%;height:500px;"></div>
+<script type="application/json" data-for="htmlwidget-0ccd1b057833a77151b1">{"x":{"theme":"","tl":false,"draw":true,"renderer":"canvas","events":[],"buttons":[],"opts":{"yAxis":[{"show":true,"name":"Cases","nameGap":12,"nameTextStyle":{"color":"#667580","fontSize":11,"fontWeight":600},"splitLine":{"lineStyle":{"color":"#DCE3E8"}}},{"type":"value","name":"Admissions | Deaths","nameGap":12,"nameTextStyle":{"color":"#667580","fontSize":11,"fontWeight":600},"splitLine":{"show":false}}],"xAxis":[{"data":["2020-01-27","2020-02-03","2020-02-10","2020-02-17","2020-02-24","2020-03-02","2020-03-09","2020-03-16","2020-03-23","2020-03-30","2020-04-06","2020-04-13","2020-04-20","2020-04-27","2020-05-04","2020-05-11","2020-05-18","2020-05-25","2020-06-01","2020-06-08","2020-06-15","2020-06-22","2020-06-29","2020-07-06","2020-07-13","2020-07-20","2020-07-27","2020-08-03","2020-08-10","2020-08-17","2020-08-24","2020-08-31","2020-09-07","2020-09-14","2020-09-21","2020-09-28","2020-10-05","2020-10-12","2020-10-19","2020-10-26","2020-11-02","2020-11-09","2020-11-16","2020-11-23","2020-11-30","2020-12-07","2020-12-14","2020-12-21","2020-12-28","2021-01-04","2021-01-11","2021-01-18","2021-01-25","2021-02-01","2021-02-08","2021-02-15","2021-02-22","2021-03-01","2021-03-08","2021-03-15","2021-03-22","2021-03-29","2021-04-05","2021-04-12","2021-04-19","2021-04-26","2021-05-03","2021-05-10","2021-05-17","2021-05-24","2021-05-31","2021-06-07","2021-06-14","2021-06-21","2021-06-28","2021-07-05","2021-07-12","2021-07-19"],"type":"category","boundaryGap":true,"name":"Week starting Monday","nameLocation":"middle","nameGap":32,"axisLabel":{"formatter":"\n  function(value) {\n    var d = new Date(value + 'T00:00:00');\n    return d.toLocaleDateString('en-US', {month: 'short', year: '2-digit'});\n  }\n","hideOverlap":true},"axisLine":{"lineStyle":{"color":"#DCE3E8"}}}],"legend":{"data":["Cases","Cases (incomplete week)","Admissions","Deaths"],"show":true,"type":"plain","top":48},"series":[{"data":[{"value":["2020-01-27","   1"]},{"value":["2020-02-03","   0"]},{"value":["2020-02-10","   5"]},{"value":["2020-02-17","  35"]},{"value":["2020-02-24","  75"]},{"value":["2020-03-02"," 135"]},{"value":["2020-03-09"," 211"]},{"value":["2020-03-16"," 265"]},{"value":["2020-03-23"," 308"]},{"value":["2020-03-30"," 356"]},{"value":["2020-04-06"," 438"]},{"value":["2020-04-13"," 438"]},{"value":["2020-04-20"," 426"]},{"value":["2020-04-27"," 398"]},{"value":["2020-05-04"," 369"]},{"value":["2020-05-11"," 354"]},{"value":["2020-05-18"," 434"]},{"value":["2020-05-25"," 596"]},{"value":["2020-06-01"," 851"]},{"value":["2020-06-08","1239"]},{"value":["2020-06-15","1496"]},{"value":["2020-06-22","1747"]},{"value":["2020-06-29","1885"]},{"value":["2020-07-06","2071"]},{"value":["2020-07-13","2145"]},{"value":["2020-07-20","2101"]},{"value":["2020-07-27","1905"]},{"value":["2020-08-03","1615"]},{"value":["2020-08-10","1385"]},{"value":["2020-08-17","1091"]},{"value":["2020-08-24"," 990"]},{"value":["2020-08-31"," 837"]},{"value":["2020-09-07"," 762"]},{"value":["2020-09-14"," 736"]},{"value":["2020-09-21"," 687"]},{"value":["2020-09-28"," 741"]},{"value":["2020-10-05"," 761"]},{"value":["2020-10-12"," 861"]},{"value":["2020-10-19"," 927"]},{"value":["2020-10-26","1101"]},{"value":["2020-11-02","1305"]},{"value":["2020-11-09","1539"]},{"value":["2020-11-16","1931"]},{"value":["2020-11-23","2117"]},{"value":["2020-11-30","2477"]},{"value":["2020-12-07","2825"]},{"value":["2020-12-14","3137"]},{"value":["2020-12-21","3300"]},{"value":["2020-12-28","3615"]},{"value":["2021-01-04","3485"]},{"value":["2021-01-11","3061"]},{"value":["2021-01-18","2846"]},{"value":["2021-01-25","2603"]},{"value":["2021-02-01","2150"]},{"value":["2021-02-08","1800"]},{"value":["2021-02-15","1483"]},{"value":["2021-02-22","1156"]},{"value":["2021-03-01","1014"]},{"value":["2021-03-08"," 832"]},{"value":["2021-03-15"," 808"]},{"value":["2021-03-22"," 745"]},{"value":["2021-03-29"," 750"]},{"value":["2021-04-05"," 701"]},{"value":["2021-04-12"," 611"]},{"value":["2021-04-19"," 534"]},{"value":["2021-04-26"," 506"]},{"value":["2021-05-03"," 482"]},{"value":["2021-05-10"," 374"]},{"value":["2021-05-17"," 299"]},{"value":["2021-05-24"," 215"]},{"value":["2021-05-31"," 162"]},{"value":["2021-06-07","  94"]},{"value":["2021-06-14","  90"]},{"value":["2021-06-21","  57"]},{"value":["2021-06-28","  29"]},{"value":["2021-07-05","  25"]},{"value":["2021-07-12","  20"]},{"value":["2021-07-19",null]}],"name":"Cases","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","itemStyle":{"color":"#2878A5"},"barMaxWidth":18},{"data":[{"value":["2020-01-27",null]},{"value":["2020-02-03",null]},{"value":["2020-02-10",null]},{"value":["2020-02-17",null]},{"value":["2020-02-24",null]},{"value":["2020-03-02",null]},{"value":["2020-03-09",null]},{"value":["2020-03-16",null]},{"value":["2020-03-23",null]},{"value":["2020-03-30",null]},{"value":["2020-04-06",null]},{"value":["2020-04-13",null]},{"value":["2020-04-20",null]},{"value":["2020-04-27",null]},{"value":["2020-05-04",null]},{"value":["2020-05-11",null]},{"value":["2020-05-18",null]},{"value":["2020-05-25",null]},{"value":["2020-06-01",null]},{"value":["2020-06-08",null]},{"value":["2020-06-15",null]},{"value":["2020-06-22",null]},{"value":["2020-06-29",null]},{"value":["2020-07-06",null]},{"value":["2020-07-13",null]},{"value":["2020-07-20",null]},{"value":["2020-07-27",null]},{"value":["2020-08-03",null]},{"value":["2020-08-10",null]},{"value":["2020-08-17",null]},{"value":["2020-08-24",null]},{"value":["2020-08-31",null]},{"value":["2020-09-07",null]},{"value":["2020-09-14",null]},{"value":["2020-09-21",null]},{"value":["2020-09-28",null]},{"value":["2020-10-05",null]},{"value":["2020-10-12",null]},{"value":["2020-10-19",null]},{"value":["2020-10-26",null]},{"value":["2020-11-02",null]},{"value":["2020-11-09",null]},{"value":["2020-11-16",null]},{"value":["2020-11-23",null]},{"value":["2020-11-30",null]},{"value":["2020-12-07",null]},{"value":["2020-12-14",null]},{"value":["2020-12-21",null]},{"value":["2020-12-28",null]},{"value":["2021-01-04",null]},{"value":["2021-01-11",null]},{"value":["2021-01-18",null]},{"value":["2021-01-25",null]},{"value":["2021-02-01",null]},{"value":["2021-02-08",null]},{"value":["2021-02-15",null]},{"value":["2021-02-22",null]},{"value":["2021-03-01",null]},{"value":["2021-03-08",null]},{"value":["2021-03-15",null]},{"value":["2021-03-22",null]},{"value":["2021-03-29",null]},{"value":["2021-04-05",null]},{"value":["2021-04-12",null]},{"value":["2021-04-19",null]},{"value":["2021-04-26",null]},{"value":["2021-05-03",null]},{"value":["2021-05-10",null]},{"value":["2021-05-17",null]},{"value":["2021-05-24",null]},{"value":["2021-05-31",null]},{"value":["2021-06-07",null]},{"value":["2021-06-14",null]},{"value":["2021-06-21",null]},{"value":["2021-06-28",null]},{"value":["2021-07-05",null]},{"value":["2021-07-12",null]},{"value":["2021-07-19"," 9"]}],"name":"Cases (incomplete week)","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","itemStyle":{"color":"#667580"},"barMaxWidth":18,"barGap":"-100%"},{"data":[{"value":["2020-01-27","  1"]},{"value":["2020-02-03","  1"]},{"value":["2020-02-10","  3"]},{"value":["2020-02-17"," 13"]},{"value":["2020-02-24"," 25"]},{"value":["2020-03-02"," 39"]},{"value":["2020-03-09"," 49"]},{"value":["2020-03-16"," 78"]},{"value":["2020-03-23"," 85"]},{"value":["2020-03-30"," 86"]},{"value":["2020-04-06"," 80"]},{"value":["2020-04-13","101"]},{"value":["2020-04-20"," 81"]},{"value":["2020-04-27"," 51"]},{"value":["2020-05-04"," 55"]},{"value":["2020-05-11"," 43"]},{"value":["2020-05-18"," 42"]},{"value":["2020-05-25"," 47"]},{"value":["2020-06-01"," 60"]},{"value":["2020-06-08"," 74"]},{"value":["2020-06-15"," 91"]},{"value":["2020-06-22"," 99"]},{"value":["2020-06-29","133"]},{"value":["2020-07-06","135"]},{"value":["2020-07-13","103"]},{"value":["2020-07-20","129"]},{"value":["2020-07-27","143"]},{"value":["2020-08-03"," 88"]},{"value":["2020-08-10"," 85"]},{"value":["2020-08-17"," 80"]},{"value":["2020-08-24"," 54"]},{"value":["2020-08-31"," 53"]},{"value":["2020-09-07"," 46"]},{"value":["2020-09-14"," 36"]},{"value":["2020-09-21"," 40"]},{"value":["2020-09-28"," 43"]},{"value":["2020-10-05"," 39"]},{"value":["2020-10-12"," 49"]},{"value":["2020-10-19"," 53"]},{"value":["2020-10-26"," 54"]},{"value":["2020-11-02"," 66"]},{"value":["2020-11-09"," 71"]},{"value":["2020-11-16"," 81"]},{"value":["2020-11-23"," 82"]},{"value":["2020-11-30"," 96"]},{"value":["2020-12-07","109"]},{"value":["2020-12-14","114"]},{"value":["2020-12-21","142"]},{"value":["2020-12-28","139"]},{"value":["2021-01-04","137"]},{"value":["2021-01-11","114"]},{"value":["2021-01-18","122"]},{"value":["2021-01-25","113"]},{"value":["2021-02-01","109"]},{"value":["2021-02-08","105"]},{"value":["2021-02-15"," 66"]},{"value":["2021-02-22"," 61"]},{"value":["2021-03-01"," 46"]},{"value":["2021-03-08"," 58"]},{"value":["2021-03-15"," 51"]},{"value":["2021-03-22"," 37"]},{"value":["2021-03-29"," 46"]},{"value":["2021-04-05"," 46"]},{"value":["2021-04-12"," 31"]},{"value":["2021-04-19"," 38"]},{"value":["2021-04-26"," 34"]},{"value":["2021-05-03"," 28"]},{"value":["2021-05-10"," 26"]},{"value":["2021-05-17"," 26"]},{"value":["2021-05-24"," 17"]},{"value":["2021-05-31"," 10"]},{"value":["2021-06-07","  5"]},{"value":["2021-06-14"," 11"]},{"value":["2021-06-21","  6"]},{"value":["2021-06-28","  3"]},{"value":["2021-07-05","  0"]},{"value":["2021-07-12","  1"]},{"value":["2021-07-19","  0"]}],"yAxisIndex":1,"xAxisIndex":0,"name":"Admissions","type":"line","coordinateSystem":"cartesian2d","symbol":"none","lineStyle":{"color":"#D28B21","width":2.5},"itemStyle":{"color":"#D28B21"}},{"data":[{"value":["2020-01-27"," 0"]},{"value":["2020-02-03"," 0"]},{"value":["2020-02-10"," 0"]},{"value":["2020-02-17"," 2"]},{"value":["2020-02-24"," 0"]},{"value":["2020-03-02"," 2"]},{"value":["2020-03-09"," 9"]},{"value":["2020-03-16","12"]},{"value":["2020-03-23","15"]},{"value":["2020-03-30","21"]},{"value":["2020-04-06","21"]},{"value":["2020-04-13","27"]},{"value":["2020-04-20","33"]},{"value":["2020-04-27","37"]},{"value":["2020-05-04","22"]},{"value":["2020-05-11","29"]},{"value":["2020-05-18","14"]},{"value":["2020-05-25","15"]},{"value":["2020-06-01","17"]},{"value":["2020-06-08","16"]},{"value":["2020-06-15","15"]},{"value":["2020-06-22","18"]},{"value":["2020-06-29","30"]},{"value":["2020-07-06","20"]},{"value":["2020-07-13","28"]},{"value":["2020-07-20","25"]},{"value":["2020-07-27","29"]},{"value":["2020-08-03","29"]},{"value":["2020-08-10","14"]},{"value":["2020-08-17","23"]},{"value":["2020-08-24","20"]},{"value":["2020-08-31","21"]},{"value":["2020-09-07","10"]},{"value":["2020-09-14"," 3"]},{"value":["2020-09-21","13"]},{"value":["2020-09-28","11"]},{"value":["2020-10-05","12"]},{"value":["2020-10-12"," 7"]},{"value":["2020-10-19"," 9"]},{"value":["2020-10-26","15"]},{"value":["2020-11-02","12"]},{"value":["2020-11-09","10"]},{"value":["2020-11-16","15"]},{"value":["2020-11-23","16"]},{"value":["2020-11-30","18"]},{"value":["2020-12-07","24"]},{"value":["2020-12-14","24"]},{"value":["2020-12-21","41"]},{"value":["2020-12-28","36"]},{"value":["2021-01-04","66"]},{"value":["2021-01-11","40"]},{"value":["2021-01-18","48"]},{"value":["2021-01-25","29"]},{"value":["2021-02-01","40"]},{"value":["2021-02-08","44"]},{"value":["2021-02-15","40"]},{"value":["2021-02-22","28"]},{"value":["2021-03-01","22"]},{"value":["2021-03-08","17"]},{"value":["2021-03-15","19"]},{"value":["2021-03-22","20"]},{"value":["2021-03-29","18"]},{"value":["2021-04-05","11"]},{"value":["2021-04-12","10"]},{"value":["2021-04-19"," 7"]},{"value":["2021-04-26"," 7"]},{"value":["2021-05-03"," 2"]},{"value":["2021-05-10"," 5"]},{"value":["2021-05-17"," 9"]},{"value":["2021-05-24"," 5"]},{"value":["2021-05-31"," 5"]},{"value":["2021-06-07"," 1"]},{"value":["2021-06-14"," 2"]},{"value":["2021-06-21"," 2"]},{"value":["2021-06-28"," 1"]},{"value":["2021-07-05"," 0"]},{"value":["2021-07-12"," 0"]},{"value":["2021-07-19"," 0"]}],"yAxisIndex":1,"xAxisIndex":0,"name":"Deaths","type":"line","coordinateSystem":"cartesian2d","symbol":"none","lineStyle":{"color":"#B64B4B","width":2.5},"itemStyle":{"color":"#B64B4B"}}],"title":[{"subtextStyle":{"fontSize":11},"left":"center","text":"Weekly Event Trends"}],"tooltip":{"trigger":"axis","formatter":"\n  function(params) {\n    function getY(p) {\n      var v = p.value;\n      if (Array.isArray(v)) return Number(v[v.length - 1]);\n      return Number(v);\n    }\n\n    var weekStart = params[0].axisValue;\n    var start = new Date(weekStart + 'T00:00:00');\n    var end = new Date(start);\n    end.setDate(start.getDate() + 6);\n    var fmt = {month: 'short', day: 'numeric', year: 'numeric'};\n    var header = '<strong>' + start.toLocaleDateString('en-US', fmt) +\n      ' - ' + end.toLocaleDateString('en-US', fmt) + '<\/strong><br/>';\n    var body = '';\n    var hasIncompleteCases = params.some(function(p) {\n      return p.seriesName === 'Cases | incomplete week' && getY(p) > 0;\n    });\n\n    params.forEach(function(p) {\n      if (p.seriesName === 'Cases | incomplete week' && !hasIncompleteCases) return;\n      if (p.seriesName === 'Cases | specimen date' && hasIncompleteCases) return;\n      body += p.marker + ' ' + p.seriesName + ': <strong>' +\n        getY(p).toLocaleString() + '<\/strong><br/>';\n    });\n\n    return header + body;\n  }\n"},"dataZoom":[{"type":"slider","height":20,"bottom":2,"xAxisIndex":0}],"toolbox":{"feature":{"dataZoom":[]}},"grid":[{"top":92,"right":64,"bottom":72,"left":64}]},"dispose":true},"evals":["opts.xAxis.0.axisLabel.formatter","opts.tooltip.formatter"],"jsHooks":[]}</script>
 </div>
 </div>
 <bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
@@ -5021,24 +5118,30 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div></div><aside id="bslib-sidebar-1" class="sidebar html-fill-container html-fill-item"><div class="html-fill-item html-fill-container">
-<p>This project originated from a coding assessment request to analyze an outbreak line list and deliver a situational report for epidemiologists.</p>
-<p>The underlying data is a synthetic COVID-19 <a href="https://github.com/appliedepi/epiRhandbook_eng/tree/master/data/covid_example_data">dataset</a> provided by the global non-profit organization Applied Epi.</p>
-<p>All graphs were created using the R package <code>echarts4r</code>.</p>
-<div class="callout callout-style-default callout-tip callout-titled" title="Usage Tips">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="reporting-status">
+<div class="h5">
+Reporting
+
+Status
 </div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Usage Tips
+<p><strong>Latest complete week</strong><br> Jul 12-Jul 18, 2021</p>
+<p>The week beginning Jul 19, 2021 is incomplete and excluded from headline metrics.</p>
+</section>
+<section id="data-timing">
+<div class="h5">
+Data
+
+Timing
 </div>
+<p>Cases use specimen collection date, admissions use admission date, and deaths use date of death.</p>
+<p>Median reporting lag was 3 days; recent counts may increase as delayed reports are received.</p>
+</section>
+<section id="scope">
+<div class="h5">
+Scope
 </div>
-<div class="callout-body-container callout-body">
-<p>Hover your cursor over graph contents to see a <strong>tooltip</strong> for additional information.</p>
-<p>Use the interactive <strong>zoom slider</strong> under the x-axis to select a specific date range.</p>
-<p>To enter <strong>full screen</strong> with any graph, click the expand icon on the bottom right.</p>
-</div>
-</div>
+<p>Synthetic confirmed COVID-19 line-list data from <a href="https://github.com/appliedepi/epirhandbook/tree/master/data/covid_example_data">Applied Epi</a>.</p>
+</section>
 </div></aside>
 <button class="collapse-toggle" type="button" title="Toggle sidebar" aria-expanded="true" aria-controls="bslib-sidebar-1">
     <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" class="bi bi-chevron-left collapse-icon" style="fill:currentColor;" aria-hidden="true" role="img">
@@ -5051,107 +5154,16 @@ bslib.Sidebar.initCollapsibleAll()
 </div>
 </div>
 </div>
-<div id="cases" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-cases">
+<div id="severity-by-age" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-severity-by-age">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr);
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 72fr) minmax(3em, 28fr);
 grid-auto-rows: minmax(0, 1fr);">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 50fr) minmax(3em, 50fr); grid-auto-columns: minmax(0, 1fr);">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
-grid-auto-rows: minmax(0, 1fr);">
-<div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init data-require-bs-caller="card()" data-full-screen="false">
-<div class="card-body html-fill-item html-fill-container">
-<div class="cell-output-display html-fill-item html-fill-container">
-<div class="echarts4r html-widget html-fill-item html-fill-container" id="htmlwidget-02fa17f239db9d192a1a" style="width:100%;height:500px;"></div>
-<script type="application/json" data-for="htmlwidget-02fa17f239db9d192a1a">{"x":{"theme":"","tl":false,"draw":true,"renderer":"canvas","events":[],"buttons":[],"opts":{"legend":{"data":["Native Hawaiian/Pacific Islander","American Indian/Alaska Native","Missing","Asian","Unknown","Other","White","Black"],"show":false,"type":"plain"},"series":[{"name":"Cases","type":"pie","radius":["50%","70%"],"data":[{"value":79,"name":"Native Hawaiian/Pacific Islander"},{"value":84,"name":"American Indian/Alaska Native"},{"value":2630,"name":"Missing"},{"value":3075,"name":"Asian"},{"value":3723,"name":"Unknown"},{"value":5863,"name":"Other"},{"value":31599,"name":"White"},{"value":35048,"name":"Black"}]}],"title":[{"left":"center","text":"Total Cases by Race (2020-2021)"}],"tooltip":{"trigger":"item","formatter":"\n      function(params) {\n          return '<strong>' + params.name + '<\/strong><br/>' +\n               'Cases: ' + params.value.toLocaleString() + '<br/>' +\n               'Percentage: ' + params.percent.toFixed(2) + '%';\n      }\n    "},"color":["#BAB0AC","#9C755F","#F28E2B","#AF7AA1","#EDC948","#59A14F","#76B7B2","#4E79A7"]},"dispose":true},"evals":["opts.tooltip.formatter"],"jsHooks":[]}</script>
-</div>
-</div>
-<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
-    <template>Expand</template>
-    <span class="bslib-full-screen-enter badge rounded-pill">
-        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z" /></svg>
-    </span>
-</bslib-tooltip><script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
-</div>
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
-grid-auto-rows: minmax(0, 1fr);">
-<div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init data-require-bs-caller="card()" data-full-screen="false">
-<div class="card-body html-fill-item html-fill-container">
-<div class="cell-output-display html-fill-item html-fill-container">
-<div class="echarts4r html-widget html-fill-item html-fill-container" id="htmlwidget-34c36262fab8cf8ad8e7" style="width:100%;height:500px;"></div>
-<script type="application/json" data-for="htmlwidget-34c36262fab8cf8ad8e7">{"x":{"theme":"","tl":false,"draw":true,"renderer":"canvas","events":[],"buttons":[],"opts":{"yAxis":[{"show":true}],"xAxis":[{"data":["0–17","18–29","30–44","45–64","65+","Missing"],"type":"category","boundaryGap":true}],"legend":{"data":["Female","Male","Other/Unknown","Missing"],"show":true,"type":"plain","top":25},"series":[{"data":[{"value":["0–17"," 4014"]},{"value":["18–29","11227"]},{"value":["30–44","11935"]},{"value":["45–64","10969"]},{"value":["65+"," 5132"]},{"value":["Missing","   22"]}],"name":"Female","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","stack":"sex"},{"data":[{"value":["0–17"," 3948"]},{"value":["18–29"," 9333"]},{"value":["30–44","10639"]},{"value":["45–64","10432"]},{"value":["65+"," 4026"]},{"value":["Missing","   15"]}],"name":"Male","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","stack":"sex"},{"data":[{"value":["0–17","38"]},{"value":["18–29","84"]},{"value":["30–44","96"]},{"value":["45–64","79"]},{"value":["65+","38"]},{"value":["Missing","11"]}],"name":"Other/Unknown","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","stack":"sex"},{"data":[{"value":["0–17"," 9"]},{"value":["18–29","12"]},{"value":["30–44","15"]},{"value":["45–64","15"]},{"value":["65+","11"]},{"value":["Missing"," 1"]}],"name":"Missing","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","stack":"sex"}],"title":[{"left":"center","text":"Total Cases by Age Group and Sex (2020-2021)"}],"tooltip":{"trigger":"axis","formatter":"\n    function(params){\n      var header = '<strong>' + params[0].axisValue + '<\/strong><br/>';\n      var body = '';\n      var total = 0;\n\n      params.forEach(function(p){\n        var raw = Array.isArray(p.value) ? p.value[1] : p.value;\n        var val = Number(raw) || 0;      // <- force numeric\n        total += val;\n\n        body += p.marker + ' ' + p.seriesName + ': ' +\n                val.toLocaleString() + '<br/>';\n      });\n\n      body += '<hr style=\"margin:4px 0;\">' +\n              '<strong>Total: ' + total.toLocaleString() + '<\/strong>';\n\n      return header + body;\n    }\n  "},"color":["#4E79A7","#76B7B2","#59A14F","#EDC948","#AF7AA1","#F28E2B","#9C755F","#BAB0AC"]},"dispose":true},"evals":["opts.tooltip.formatter"],"jsHooks":[]}</script>
-</div>
-</div>
-<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
-    <template>Expand</template>
-    <span class="bslib-full-screen-enter badge rounded-pill">
-        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z" /></svg>
-    </span>
-</bslib-tooltip><script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
-</div>
-</div><div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, max-content) minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr);
-grid-auto-rows: minmax(0, 1fr);">
-<div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
-<div class="card-body html-fill-item html-fill-container">
-<div data-icon="hospital" class="html-fill-item html-fill-container value-box-grid">
-<div class="value-box-showcase html-fill-item html-fill-container">
-
-<i class="bi bi-hospital"></i></div>
-<div class="value-box-area">
-<p class="value-box-title">
-Total Hospitalized
-</p>
-<p class="value-box-value">
-5,289
-</p>
-</div>
-</div>
-</div>
-<script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init data-require-bs-caller="card()">
-<div class="card-body html-fill-item html-fill-container">
-<div data-icon="heart-pulse" class="html-fill-item html-fill-container value-box-grid">
-<div class="value-box-showcase html-fill-item html-fill-container">
-
-<i class="bi bi-heart-pulse"></i></div>
-<div class="value-box-area">
-<p class="value-box-title">
-New Admissions (Latest Week)
-</p>
-<p class="value-box-value">
-0
-</p>
-</div>
-</div>
-</div>
-<script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
-</div>
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
-grid-auto-rows: minmax(0, 1fr);">
-<div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init data-require-bs-caller="card()" data-full-screen="false">
-<div class="card-body html-fill-item html-fill-container">
-<div class="cell-output-display html-fill-item html-fill-container">
-<div class="echarts4r html-widget html-fill-item html-fill-container" id="htmlwidget-cdd05d6e5ed6a459237c" style="width:100%;height:500px;"></div>
-<script type="application/json" data-for="htmlwidget-cdd05d6e5ed6a459237c">{"x":{"theme":"","tl":false,"draw":true,"renderer":"canvas","events":[],"buttons":[],"opts":{"yAxis":[{"show":true}],"xAxis":[{"data":["2020-01-27T00:00:00Z","2020-02-10T00:00:00Z","2020-02-17T00:00:00Z","2020-02-24T00:00:00Z","2020-03-02T00:00:00Z","2020-03-09T00:00:00Z","2020-03-16T00:00:00Z","2020-03-23T00:00:00Z","2020-03-30T00:00:00Z","2020-04-06T00:00:00Z","2020-04-13T00:00:00Z","2020-04-20T00:00:00Z","2020-04-27T00:00:00Z","2020-05-04T00:00:00Z","2020-05-11T00:00:00Z","2020-05-18T00:00:00Z","2020-05-25T00:00:00Z","2020-06-01T00:00:00Z","2020-06-08T00:00:00Z","2020-06-15T00:00:00Z","2020-06-22T00:00:00Z","2020-06-29T00:00:00Z","2020-07-06T00:00:00Z","2020-07-13T00:00:00Z","2020-07-20T00:00:00Z","2020-07-27T00:00:00Z","2020-08-03T00:00:00Z","2020-08-10T00:00:00Z","2020-08-17T00:00:00Z","2020-08-24T00:00:00Z","2020-08-31T00:00:00Z","2020-09-07T00:00:00Z","2020-09-14T00:00:00Z","2020-09-21T00:00:00Z","2020-09-28T00:00:00Z","2020-10-05T00:00:00Z","2020-10-12T00:00:00Z","2020-10-19T00:00:00Z","2020-10-26T00:00:00Z","2020-11-02T00:00:00Z","2020-11-09T00:00:00Z","2020-11-16T00:00:00Z","2020-11-23T00:00:00Z","2020-11-30T00:00:00Z","2020-12-07T00:00:00Z","2020-12-14T00:00:00Z","2020-12-21T00:00:00Z","2020-12-28T00:00:00Z","2021-01-04T00:00:00Z","2021-01-11T00:00:00Z","2021-01-18T00:00:00Z","2021-01-25T00:00:00Z","2021-02-01T00:00:00Z","2021-02-08T00:00:00Z","2021-02-15T00:00:00Z","2021-02-22T00:00:00Z","2021-03-01T00:00:00Z","2021-03-08T00:00:00Z","2021-03-15T00:00:00Z","2021-03-22T00:00:00Z","2021-03-29T00:00:00Z","2021-04-05T00:00:00Z","2021-04-12T00:00:00Z","2021-04-19T00:00:00Z","2021-04-26T00:00:00Z","2021-05-03T00:00:00Z","2021-05-10T00:00:00Z","2021-05-17T00:00:00Z","2021-05-24T00:00:00Z","2021-05-31T00:00:00Z","2021-06-07T00:00:00Z","2021-06-14T00:00:00Z","2021-06-21T00:00:00Z","2021-06-28T00:00:00Z","2021-07-05T00:00:00Z","2021-07-12T00:00:00Z","2021-07-19T00:00:00Z"],"type":"time","boundaryGap":true}],"legend":{"data":["Hospitalization Rate (%)"],"show":false,"type":"plain"},"series":[{"data":[{"value":["2020-01-27"," 0.000000"]},{"value":["2020-02-10","60.000000"]},{"value":["2020-02-17","34.285714"]},{"value":["2020-02-24","32.000000"]},{"value":["2020-03-02","31.111111"]},{"value":["2020-03-09","26.415094"]},{"value":["2020-03-16","32.075472"]},{"value":["2020-03-23","28.478964"]},{"value":["2020-03-30","26.610644"]},{"value":["2020-04-06","21.004566"]},{"value":["2020-04-13","27.168950"]},{"value":["2020-04-20","21.077283"]},{"value":["2020-04-27","16.834171"]},{"value":["2020-05-04","17.073171"]},{"value":["2020-05-11","13.445378"]},{"value":["2020-05-18","11.238532"]},{"value":["2020-05-25"," 7.872697"]},{"value":["2020-06-01"," 7.737397"]},{"value":["2020-06-08"," 6.693548"]},{"value":["2020-06-15"," 6.746827"]},{"value":["2020-06-22"," 6.353749"]},{"value":["2020-06-29"," 8.169761"]},{"value":["2020-07-06"," 7.049734"]},{"value":["2020-07-13"," 6.013986"]},{"value":["2020-07-20"," 6.853879"]},{"value":["2020-07-27"," 7.926509"]},{"value":["2020-08-03"," 6.315789"]},{"value":["2020-08-10"," 7.364621"]},{"value":["2020-08-17"," 6.599450"]},{"value":["2020-08-24"," 6.565657"]},{"value":["2020-08-31"," 6.810036"]},{"value":["2020-09-07"," 5.380577"]},{"value":["2020-09-14"," 5.434783"]},{"value":["2020-09-21"," 5.385735"]},{"value":["2020-09-28"," 6.612686"]},{"value":["2020-10-05"," 5.256242"]},{"value":["2020-10-12"," 6.620209"]},{"value":["2020-10-19"," 6.148867"]},{"value":["2020-10-26"," 5.086285"]},{"value":["2020-11-02"," 5.057471"]},{"value":["2020-11-09"," 4.483431"]},{"value":["2020-11-16"," 4.660798"]},{"value":["2020-11-23"," 4.770902"]},{"value":["2020-11-30"," 3.916027"]},{"value":["2020-12-07"," 4.601770"]},{"value":["2020-12-14"," 4.239719"]},{"value":["2020-12-21"," 4.666667"]},{"value":["2020-12-28"," 4.619640"]},{"value":["2021-01-04"," 4.074605"]},{"value":["2021-01-11"," 4.344985"]},{"value":["2021-01-18"," 4.532677"]},{"value":["2021-01-25"," 4.686900"]},{"value":["2021-02-01"," 5.162791"]},{"value":["2021-02-08"," 6.555556"]},{"value":["2021-02-15"," 5.327040"]},{"value":["2021-02-22"," 5.449827"]},{"value":["2021-03-01"," 5.128205"]},{"value":["2021-03-08"," 6.610577"]},{"value":["2021-03-15"," 5.445545"]},{"value":["2021-03-22"," 6.174497"]},{"value":["2021-03-29"," 6.266667"]},{"value":["2021-04-05"," 7.845934"]},{"value":["2021-04-12"," 4.582651"]},{"value":["2021-04-19"," 6.741573"]},{"value":["2021-04-26"," 7.707510"]},{"value":["2021-05-03"," 6.639004"]},{"value":["2021-05-10"," 6.684492"]},{"value":["2021-05-17"," 9.030100"]},{"value":["2021-05-24"," 7.441860"]},{"value":["2021-05-31"," 6.790123"]},{"value":["2021-06-07"," 8.510638"]},{"value":["2021-06-14","13.333333"]},{"value":["2021-06-21","12.280702"]},{"value":["2021-06-28","10.344828"]},{"value":["2021-07-05"," 0.000000"]},{"value":["2021-07-12","10.000000"]},{"value":["2021-07-19"," 0.000000"]}],"yAxisIndex":0,"xAxisIndex":0,"name":"Hospitalization Rate (%)","type":"line","coordinateSystem":"cartesian2d"}],"title":[{"subtextStyle":{"fontSize":14},"left":"center","text":"Weekly Hospitalization Rate Among Reported Cases","subtext":"By specimen collection week (2020–2021)"}],"dataZoom":[{"type":"slider"}],"toolbox":{"feature":{"dataZoom":[]}},"tooltip":{"trigger":"axis","formatter":"\n  function(params){\n    var p = params[0];\n\n    // --- Parse date ---\n    var d = new Date(p.axisValue);\n    var dateLabel = d.toISOString().slice(0,10); // YYYY-MM-DD\n\n    // --- CDC epi week calculation ---\n    // CDC week: week containing Jan 4 is week 1\n    var year = d.getUTCFullYear();\n    var jan4 = new Date(Date.UTC(year, 0, 4));\n    var firstWeekStart = new Date(jan4);\n    firstWeekStart.setUTCDate(jan4.getUTCDate() - jan4.getUTCDay() + 1);\n\n    var diff = d - firstWeekStart;\n    var cdcWeek = Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;\n    if (cdcWeek < 1) cdcWeek = 1;\n\n    // --- Extract y value ---\n    var y = Array.isArray(p.value) ? p.value[1] : p.value;\n    y = Number(y);\n\n    return '<strong>CDC Week ' + cdcWeek + '<\/strong><br/>' +\n           'Week Starting: ' + dateLabel + '<br/>' +\n           'Hospitalization Rate: ' + y.toFixed(1) + '%';\n  }\n"}},"dispose":true},"evals":["opts.tooltip.formatter"],"jsHooks":[]}</script>
-</div>
-</div>
-<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
-    <template>Expand</template>
-    <span class="bslib-full-screen-enter badge rounded-pill">
-        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z" /></svg>
-    </span>
-</bslib-tooltip><script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="deaths" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-deaths">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-body html-fill-item html-fill-container">
 <div class="cell-output-display html-fill-item html-fill-container">
-<div class="echarts4r html-widget html-fill-item html-fill-container" id="htmlwidget-879870cf5ceb6fde58ca" style="width:100%;height:500px;"></div>
-<script type="application/json" data-for="htmlwidget-879870cf5ceb6fde58ca">{"x":{"theme":"","tl":false,"draw":true,"renderer":"canvas","events":[],"buttons":[],"opts":{"yAxis":[{"show":true,"name":"Deaths (N)"},{"type":"value","name":"Case Fatality Rate"}],"xAxis":[{"data":["2020-01-27T00:00:00Z","2020-02-10T00:00:00Z","2020-02-17T00:00:00Z","2020-02-24T00:00:00Z","2020-03-02T00:00:00Z","2020-03-09T00:00:00Z","2020-03-16T00:00:00Z","2020-03-23T00:00:00Z","2020-03-30T00:00:00Z","2020-04-06T00:00:00Z","2020-04-13T00:00:00Z","2020-04-20T00:00:00Z","2020-04-27T00:00:00Z","2020-05-04T00:00:00Z","2020-05-11T00:00:00Z","2020-05-18T00:00:00Z","2020-05-25T00:00:00Z","2020-06-01T00:00:00Z","2020-06-08T00:00:00Z","2020-06-15T00:00:00Z","2020-06-22T00:00:00Z","2020-06-29T00:00:00Z","2020-07-06T00:00:00Z","2020-07-13T00:00:00Z","2020-07-20T00:00:00Z","2020-07-27T00:00:00Z","2020-08-03T00:00:00Z","2020-08-10T00:00:00Z","2020-08-17T00:00:00Z","2020-08-24T00:00:00Z","2020-08-31T00:00:00Z","2020-09-07T00:00:00Z","2020-09-14T00:00:00Z","2020-09-21T00:00:00Z","2020-09-28T00:00:00Z","2020-10-05T00:00:00Z","2020-10-12T00:00:00Z","2020-10-19T00:00:00Z","2020-10-26T00:00:00Z","2020-11-02T00:00:00Z","2020-11-09T00:00:00Z","2020-11-16T00:00:00Z","2020-11-23T00:00:00Z","2020-11-30T00:00:00Z","2020-12-07T00:00:00Z","2020-12-14T00:00:00Z","2020-12-21T00:00:00Z","2020-12-28T00:00:00Z","2021-01-04T00:00:00Z","2021-01-11T00:00:00Z","2021-01-18T00:00:00Z","2021-01-25T00:00:00Z","2021-02-01T00:00:00Z","2021-02-08T00:00:00Z","2021-02-15T00:00:00Z","2021-02-22T00:00:00Z","2021-03-01T00:00:00Z","2021-03-08T00:00:00Z","2021-03-15T00:00:00Z","2021-03-22T00:00:00Z","2021-03-29T00:00:00Z","2021-04-05T00:00:00Z","2021-04-12T00:00:00Z","2021-04-19T00:00:00Z","2021-04-26T00:00:00Z","2021-05-03T00:00:00Z","2021-05-10T00:00:00Z","2021-05-17T00:00:00Z","2021-05-24T00:00:00Z","2021-05-31T00:00:00Z","2021-06-07T00:00:00Z","2021-06-14T00:00:00Z","2021-06-21T00:00:00Z","2021-06-28T00:00:00Z","2021-07-05T00:00:00Z","2021-07-12T00:00:00Z","2021-07-19T00:00:00Z"],"type":"time","boundaryGap":true}],"legend":{"data":["Number of Deaths","Case Fatality Rate"],"show":true,"type":"plain","top":"8%"},"series":[{"data":[{"value":["2020-01-27"," 0"],"name":"CDC Week 5"},{"value":["2020-02-10"," 0"],"name":"CDC Week 7"},{"value":["2020-02-17"," 3"],"name":"CDC Week 8"},{"value":["2020-02-24"," 4"],"name":"CDC Week 9"},{"value":["2020-03-02"," 9"],"name":"CDC Week 10"},{"value":["2020-03-09","14"],"name":"CDC Week 11"},{"value":["2020-03-16","28"],"name":"CDC Week 12"},{"value":["2020-03-23","31"],"name":"CDC Week 13"},{"value":["2020-03-30","32"],"name":"CDC Week 14"},{"value":["2020-04-06","35"],"name":"CDC Week 15"},{"value":["2020-04-13","45"],"name":"CDC Week 16"},{"value":["2020-04-20","34"],"name":"CDC Week 17"},{"value":["2020-04-27","25"],"name":"CDC Week 18"},{"value":["2020-05-04","18"],"name":"CDC Week 19"},{"value":["2020-05-11","18"],"name":"CDC Week 20"},{"value":["2020-05-18","20"],"name":"CDC Week 21"},{"value":["2020-05-25","13"],"name":"CDC Week 22"},{"value":["2020-06-01","14"],"name":"CDC Week 23"},{"value":["2020-06-08","14"],"name":"CDC Week 24"},{"value":["2020-06-15","23"],"name":"CDC Week 25"},{"value":["2020-06-22","27"],"name":"CDC Week 26"},{"value":["2020-06-29","23"],"name":"CDC Week 27"},{"value":["2020-07-06","34"],"name":"CDC Week 28"},{"value":["2020-07-13","31"],"name":"CDC Week 29"},{"value":["2020-07-20","25"],"name":"CDC Week 30"},{"value":["2020-07-27","30"],"name":"CDC Week 31"},{"value":["2020-08-03","22"],"name":"CDC Week 32"},{"value":["2020-08-10","17"],"name":"CDC Week 33"},{"value":["2020-08-17","12"],"name":"CDC Week 34"},{"value":["2020-08-24","11"],"name":"CDC Week 35"},{"value":["2020-08-31"," 7"],"name":"CDC Week 36"},{"value":["2020-09-07"," 8"],"name":"CDC Week 37"},{"value":["2020-09-14"," 6"],"name":"CDC Week 38"},{"value":["2020-09-21"," 7"],"name":"CDC Week 39"},{"value":["2020-09-28","10"],"name":"CDC Week 40"},{"value":["2020-10-05"," 9"],"name":"CDC Week 41"},{"value":["2020-10-12","12"],"name":"CDC Week 42"},{"value":["2020-10-19","16"],"name":"CDC Week 43"},{"value":["2020-10-26","14"],"name":"CDC Week 44"},{"value":["2020-11-02","14"],"name":"CDC Week 45"},{"value":["2020-11-09","13"],"name":"CDC Week 46"},{"value":["2020-11-16","16"],"name":"CDC Week 47"},{"value":["2020-11-23","31"],"name":"CDC Week 48"},{"value":["2020-11-30","31"],"name":"CDC Week 49"},{"value":["2020-12-07","38"],"name":"CDC Week 50"},{"value":["2020-12-14","39"],"name":"CDC Week 51"},{"value":["2020-12-21","61"],"name":"CDC Week 52"},{"value":["2020-12-28","65"],"name":"CDC Week 53"},{"value":["2021-01-04","36"],"name":"CDC Week 1"},{"value":["2021-01-11","42"],"name":"CDC Week 2"},{"value":["2021-01-18","38"],"name":"CDC Week 3"},{"value":["2021-01-25","32"],"name":"CDC Week 4"},{"value":["2021-02-01","35"],"name":"CDC Week 5"},{"value":["2021-02-08","29"],"name":"CDC Week 6"},{"value":["2021-02-15","18"],"name":"CDC Week 7"},{"value":["2021-02-22","15"],"name":"CDC Week 8"},{"value":["2021-03-01","14"],"name":"CDC Week 9"},{"value":["2021-03-08"," 7"],"name":"CDC Week 10"},{"value":["2021-03-15"," 8"],"name":"CDC Week 11"},{"value":["2021-03-22","15"],"name":"CDC Week 12"},{"value":["2021-03-29"," 4"],"name":"CDC Week 13"},{"value":["2021-04-05"," 4"],"name":"CDC Week 14"},{"value":["2021-04-12"," 4"],"name":"CDC Week 15"},{"value":["2021-04-19"," 4"],"name":"CDC Week 16"},{"value":["2021-04-26"," 6"],"name":"CDC Week 17"},{"value":["2021-05-03"," 7"],"name":"CDC Week 18"},{"value":["2021-05-10"," 5"],"name":"CDC Week 19"},{"value":["2021-05-17"," 2"],"name":"CDC Week 20"},{"value":["2021-05-24"," 1"],"name":"CDC Week 21"},{"value":["2021-05-31"," 0"],"name":"CDC Week 22"},{"value":["2021-06-07"," 1"],"name":"CDC Week 23"},{"value":["2021-06-14"," 0"],"name":"CDC Week 24"},{"value":["2021-06-21"," 0"],"name":"CDC Week 25"},{"value":["2021-06-28"," 0"],"name":"CDC Week 26"},{"value":["2021-07-05"," 0"],"name":"CDC Week 27"},{"value":["2021-07-12"," 0"],"name":"CDC Week 28"},{"value":["2021-07-19"," 0"],"name":"CDC Week 29"}],"name":"Number of Deaths","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d"},{"data":[{"value":["2020-01-27","0.000000000"],"name":"CDC Week 5"},{"value":["2020-02-10","0.000000000"],"name":"CDC Week 7"},{"value":["2020-02-17","0.085714286"],"name":"CDC Week 8"},{"value":["2020-02-24","0.053333333"],"name":"CDC Week 9"},{"value":["2020-03-02","0.066666667"],"name":"CDC Week 10"},{"value":["2020-03-09","0.066037736"],"name":"CDC Week 11"},{"value":["2020-03-16","0.105660377"],"name":"CDC Week 12"},{"value":["2020-03-23","0.100323625"],"name":"CDC Week 13"},{"value":["2020-03-30","0.089635854"],"name":"CDC Week 14"},{"value":["2020-04-06","0.079908676"],"name":"CDC Week 15"},{"value":["2020-04-13","0.102739726"],"name":"CDC Week 16"},{"value":["2020-04-20","0.079625293"],"name":"CDC Week 17"},{"value":["2020-04-27","0.062814070"],"name":"CDC Week 18"},{"value":["2020-05-04","0.048780488"],"name":"CDC Week 19"},{"value":["2020-05-11","0.050420168"],"name":"CDC Week 20"},{"value":["2020-05-18","0.045871560"],"name":"CDC Week 21"},{"value":["2020-05-25","0.021775544"],"name":"CDC Week 22"},{"value":["2020-06-01","0.016412661"],"name":"CDC Week 23"},{"value":["2020-06-08","0.011290323"],"name":"CDC Week 24"},{"value":["2020-06-15","0.015364061"],"name":"CDC Week 25"},{"value":["2020-06-22","0.015455066"],"name":"CDC Week 26"},{"value":["2020-06-29","0.012201592"],"name":"CDC Week 27"},{"value":["2020-07-06","0.016417190"],"name":"CDC Week 28"},{"value":["2020-07-13","0.014452214"],"name":"CDC Week 29"},{"value":["2020-07-20","0.011899096"],"name":"CDC Week 30"},{"value":["2020-07-27","0.015748031"],"name":"CDC Week 31"},{"value":["2020-08-03","0.013622291"],"name":"CDC Week 32"},{"value":["2020-08-10","0.012274368"],"name":"CDC Week 33"},{"value":["2020-08-17","0.010999083"],"name":"CDC Week 34"},{"value":["2020-08-24","0.011111111"],"name":"CDC Week 35"},{"value":["2020-08-31","0.008363202"],"name":"CDC Week 36"},{"value":["2020-09-07","0.010498688"],"name":"CDC Week 37"},{"value":["2020-09-14","0.008152174"],"name":"CDC Week 38"},{"value":["2020-09-21","0.010189229"],"name":"CDC Week 39"},{"value":["2020-09-28","0.013495277"],"name":"CDC Week 40"},{"value":["2020-10-05","0.011826544"],"name":"CDC Week 41"},{"value":["2020-10-12","0.013937282"],"name":"CDC Week 42"},{"value":["2020-10-19","0.017259978"],"name":"CDC Week 43"},{"value":["2020-10-26","0.012715713"],"name":"CDC Week 44"},{"value":["2020-11-02","0.010727969"],"name":"CDC Week 45"},{"value":["2020-11-09","0.008447044"],"name":"CDC Week 46"},{"value":["2020-11-16","0.008285862"],"name":"CDC Week 47"},{"value":["2020-11-23","0.014643363"],"name":"CDC Week 48"},{"value":["2020-11-30","0.012515139"],"name":"CDC Week 49"},{"value":["2020-12-07","0.013451327"],"name":"CDC Week 50"},{"value":["2020-12-14","0.012432260"],"name":"CDC Week 51"},{"value":["2020-12-21","0.018484848"],"name":"CDC Week 52"},{"value":["2020-12-28","0.017980636"],"name":"CDC Week 53"},{"value":["2021-01-04","0.010329986"],"name":"CDC Week 1"},{"value":["2021-01-11","0.013721006"],"name":"CDC Week 2"},{"value":["2021-01-18","0.013352073"],"name":"CDC Week 3"},{"value":["2021-01-25","0.012293507"],"name":"CDC Week 4"},{"value":["2021-02-01","0.016279070"],"name":"CDC Week 5"},{"value":["2021-02-08","0.016111111"],"name":"CDC Week 6"},{"value":["2021-02-15","0.012137559"],"name":"CDC Week 7"},{"value":["2021-02-22","0.012975779"],"name":"CDC Week 8"},{"value":["2021-03-01","0.013806706"],"name":"CDC Week 9"},{"value":["2021-03-08","0.008413462"],"name":"CDC Week 10"},{"value":["2021-03-15","0.009900990"],"name":"CDC Week 11"},{"value":["2021-03-22","0.020134228"],"name":"CDC Week 12"},{"value":["2021-03-29","0.005333333"],"name":"CDC Week 13"},{"value":["2021-04-05","0.005706134"],"name":"CDC Week 14"},{"value":["2021-04-12","0.006546645"],"name":"CDC Week 15"},{"value":["2021-04-19","0.007490637"],"name":"CDC Week 16"},{"value":["2021-04-26","0.011857708"],"name":"CDC Week 17"},{"value":["2021-05-03","0.014522822"],"name":"CDC Week 18"},{"value":["2021-05-10","0.013368984"],"name":"CDC Week 19"},{"value":["2021-05-17","0.006688963"],"name":"CDC Week 20"},{"value":["2021-05-24","0.004651163"],"name":"CDC Week 21"},{"value":["2021-05-31","0.000000000"],"name":"CDC Week 22"},{"value":["2021-06-07","0.010638298"],"name":"CDC Week 23"},{"value":["2021-06-14","0.000000000"],"name":"CDC Week 24"},{"value":["2021-06-21","0.000000000"],"name":"CDC Week 25"},{"value":["2021-06-28","0.000000000"],"name":"CDC Week 26"},{"value":["2021-07-05","0.000000000"],"name":"CDC Week 27"},{"value":["2021-07-12","0.000000000"],"name":"CDC Week 28"},{"value":["2021-07-19","0.000000000"],"name":"CDC Week 29"}],"yAxisIndex":1,"xAxisIndex":0,"name":"Case Fatality Rate","type":"line","coordinateSystem":"cartesian2d"}],"tooltip":{"trigger":"axis","formatter":"\n    function(params){\n\n      function getY(p){\n        var v = p.value;\n        if (Array.isArray(v)) return v[v.length - 1]; // y\n        return v;\n      }\n\n      var bar  = params.find(p => p.seriesType === 'bar');\n      var line = params.find(p => p.seriesType === 'line');\n\n      // CDC Week label comes from bind -> params[i].name\n      var cdcWeekLabel = params[0].name; // e.g., 'CDC Week 31'\n\n      // Week start date from axis value or from value[0]\n      var weekStart =\n        (params[0].axisValueLabel || params[0].axisValue) ||\n        (Array.isArray(params[0].value) ? params[0].value[0] : params[0].name);\n\n      var deaths = bar  ? getY(bar)  : null;\n      var cfr    = line ? getY(line) : null;\n\n      var deathsTxt = (deaths === null || deaths === undefined) ? 'NA' : deaths;\n\n      var cfrTxt = (cfr === null || cfr === undefined || isNaN(cfr))\n        ? 'NA'\n        : (Number(cfr) * 100).toFixed(2) + '%';\n\n      return '<strong>' + cdcWeekLabel + '<\/strong>'\n        + '<br/>Week Starting: ' + weekStart\n        + '<br/>Number of Deaths: ' + deathsTxt\n        + '<br/>Case Fatality Rate: ' + cfrTxt;\n    }\n  "},"title":[{"left":"center","subtextStyle":{"fontSize":14},"text":"COVID-19 Deaths and Case Fatality Rate by Week","subtext":"2020-2021"}],"dataZoom":[{"type":"slider","xAxisIndex":0}],"toolbox":{"feature":{"dataZoom":[]}}},"dispose":true},"evals":["opts.tooltip.formatter"],"jsHooks":[]}</script>
+<div class="echarts4r html-widget html-fill-item html-fill-container" id="htmlwidget-ec2f4d8cc09b3e9a5aa1" style="width:100%;height:500px;"></div>
+<script type="application/json" data-for="htmlwidget-ec2f4d8cc09b3e9a5aa1">{"x":{"theme":"","tl":false,"draw":true,"renderer":"canvas","events":[],"buttons":[],"opts":{"yAxis":[{"show":true,"axisLabel":{"formatter":"\n  function(value) { return value + '%'; }\n"},"splitLine":{"lineStyle":{"color":"#DCE3E8"}}}],"xAxis":[{"data":["0-17","18-29","30-44","45-64","65+"],"type":"category","boundaryGap":true,"name":"Age group","nameLocation":"middle","nameGap":32,"axisLine":{"lineStyle":{"color":"#DCE3E8"}}}],"legend":{"data":["Hospitalized among known","COVID-19 deaths among known"],"show":true,"type":"plain","top":48},"series":[{"data":[{"value":["0-17"," 1.946383"],"name":"  106 /  5,446 known; 68.0% complete"},{"value":["18-29"," 3.082250"],"name":"  365 / 11,842 known; 57.3% complete"},{"value":["30-44"," 6.301230"],"name":"  861 / 13,664 known; 60.2% complete"},{"value":["45-64","13.663397"],"name":"1,769 / 12,947 known; 60.2% complete"},{"value":["65+","38.473684"],"name":"2,193 /  5,700 known; 61.9% complete"}],"name":"Hospitalized among known","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","itemStyle":{"color":"#D28B21"},"barMaxWidth":42},{"data":[{"value":["0-17"," 0.00000000"],"name":"    0 /  4,428 known; 55.3% complete"},{"value":["18-29"," 0.05220842"],"name":"    5 /  9,577 known; 46.4% complete"},{"value":["30-44"," 0.33857980"],"name":"   37 / 10,928 known; 48.2% complete"},{"value":["45-64"," 2.37045744"],"name":"  242 / 10,209 known; 47.5% complete"},{"value":["65+","23.30827068"],"name":"1,054 /  4,522 known; 49.1% complete"}],"name":"COVID-19 deaths among known","type":"bar","yAxisIndex":0,"xAxisIndex":0,"coordinateSystem":"cartesian2d","itemStyle":{"color":"#B64B4B"},"barMaxWidth":42}],"title":[{"subtextStyle":{"fontSize":11},"left":"center","text":"Severity by Age","subtext":"Rates among records with known outcome status; hover for counts and completeness."}],"tooltip":{"trigger":"axis","formatter":"\n  function(params) {\n    function getY(p) {\n      var v = p.value;\n      if (Array.isArray(v)) return Number(v[v.length - 1]);\n      return Number(v);\n    }\n\n    var header = '<strong>Age ' + params[0].axisValue + '<\/strong><br/>';\n    var body = '';\n\n    params.forEach(function(p) {\n      var detail = p.name || '';\n      body += p.marker + ' ' + p.seriesName + ': <strong>' +\n        getY(p).toFixed(1) + '%<\/strong><br/>' +\n        '<span style=\"color:#5f6b76\">' + detail + '<\/span><br/>';\n    });\n\n    return header + body;\n  }\n"},"grid":[{"top":92,"right":28,"bottom":60,"left":68}]},"dispose":true},"evals":["opts.yAxis.0.axisLabel.formatter","opts.tooltip.formatter"],"jsHooks":[]}</script>
 </div>
 </div>
 <bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
@@ -5160,8 +5172,42 @@ grid-auto-rows: minmax(0, 1fr);">
         <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z" /></svg>
     </span>
 </bslib-tooltip><script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
-<div id="3ade8a4a-fb1d-4a6c-8409-ac45482d5fc9" class="hidden html-fill-item html-fill-container">
+</div><div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, max-content) minmax(3em, max-content); grid-auto-columns: minmax(0, 1fr);">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card html-fill-item html-fill-container bslib-card" data-fill="false" data-bslib-card-init data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-body html-fill-item html-fill-container">
+<p>Adults <strong>65+</strong> account for these shares of reported outcomes:</p>
+<ul>
+<li><strong>11.2%</strong> of reported cases</li>
+<li><strong>41.4%</strong> of reported hospitalizations</li>
+<li><strong>78.8%</strong> of reported COVID-19 deaths</li>
+</ul>
+<p>These are shares of reported events, not population risks.</p>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z" /></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
+</div>
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card html-fill-item html-fill-container bslib-card" data-fill="false" data-bslib-card-init data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-body html-fill-item html-fill-container">
+<p>Outcome status is available for <strong>60.4%</strong> of records for hospitalization and <strong>48.3%</strong> for COVID-19 death. Rates are calculated among records with known status and should be interpreted cautiously.</p>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z" /></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div><div id="3ade8a4a-fb1d-4a6c-8409-ac45482d5fc9" class="hidden html-fill-item html-fill-container">
 
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>

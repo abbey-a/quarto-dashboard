@@ -2,3 +2,5 @@
 data/covid_example_data.xlsx
 dashboard-enhancements.qmd
 README.html
+.DS_Store
+.Rhistory

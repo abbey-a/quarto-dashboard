@@ -1,33 +1,146 @@
-/* Callout header: get icon and title on one line (left aligned)*/
-.callout .callout-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.5rem;
+:root {
+  --dashboard-ink: #243442;
+  --dashboard-muted: #667580;
+  --dashboard-border: #dce3e8;
+  --dashboard-surface: #ffffff;
+  --dashboard-background: #f4f6f7;
 }
 
-/* Undo "fill" behavior that can force wrapping/stacking */
-.callout .callout-header .callout-icon-container,
-.callout .callout-header .callout-title-container {
-  flex: 0 0 auto !important;
-  width: auto !important;
-  height: auto !important;
+body {
+  color: var(--dashboard-ink);
+  background: var(--dashboard-background);
+  letter-spacing: 0;
 }
 
-/* Make sure the title container doesn't start a new line */
-.callout .callout-header .callout-title-container {
-  display: inline-flex;
-  align-items: center;
+.navbar {
+  border-bottom: 1px solid #18364a;
+  box-shadow: none;
 }
 
-/* Remove any vertical spacing that pushes the icon above */
-.callout .callout-header .callout-icon-container {
-  margin: 0 !important;
+.navbar-title {
+  font-weight: 650;
 }
 
+.dashboard-page {
+  gap: 0.75rem;
+}
 
-/* Enlarge font: Sidebar content only */
-aside .html-fill-container {
+.card,
+.bslib-card,
+.value-box,
+.bslib-value-box {
+  border: 1px solid var(--dashboard-border);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(36, 52, 66, 0.06);
+}
+
+.card-header {
+  color: var(--dashboard-ink);
+  font-weight: 650;
+  background: var(--dashboard-surface);
+  border-bottom-color: var(--dashboard-border);
+}
+
+.value-box .value-box-title,
+.bslib-value-box .value-box-title {
+  font-size: 0.78rem !important;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.value-box .value-box-value,
+.bslib-value-box .value-box-value {
+  font-size: clamp(1.4rem, 2.2vw, 2rem) !important;
+  line-height: 1.15;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.valuebox .value-box-value > * {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.valuebox .kpi-delta {
+  display: block;
+  margin-top: 0.25rem;
   font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.valuebox .value-box-area > p:last-child {
+  margin: 0;
+}
+
+.bslib-value-box.bg-primary {
+  background-color: #3d789c !important;
+}
+
+.bslib-value-box.bg-warning {
+  background-color: #bd7c2b !important;
+  color: #ffffff !important;
+}
+
+.bslib-value-box.bg-danger {
+  background-color: #ad4e53 !important;
+}
+
+aside,
+.sidebar {
+  color: var(--dashboard-ink);
+  background: #eef2f4;
+  border-right: 1px solid var(--dashboard-border);
+}
+
+aside .html-fill-container,
+.sidebar .html-fill-container {
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+aside h3,
+.sidebar h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+  color: var(--dashboard-muted);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.dashboard-page .markdown h4 {
+  color: var(--dashboard-muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.dashboard-page .markdown ul {
+  padding-left: 1.2rem;
+}
+
+.dashboard-page .markdown li {
+  margin-bottom: 0.45rem;
+}
+
+.echarts4r {
+  background: var(--dashboard-surface);
+}
+
+@media (max-width: 768px) {
+  .value-box .value-box-value,
+  .bslib-value-box .value-box-value {
+    font-size: 1.1rem;
+  }
+
+  aside .html-fill-container,
+  .sidebar .html-fill-container {
+    font-size: 0.82rem;
+  }
 }
